@@ -41,6 +41,7 @@ func main() {
 
 	log.Println("Starting digitalocean_exporter", version.Info())
 
+	prometheus.MustRegister(collector.NewAccountCollector(client))
 	prometheus.MustRegister(collector.NewDropletCollector(client))
 	prometheus.MustRegister(collector.NewVolumeCollector(client))
 	prometheus.MustRegister(collector.NewFloatingIPCollector(client))
