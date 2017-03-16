@@ -5,26 +5,33 @@ workspace:
 pipeline:
   build:
     image: golang:alpine
+    pull: true
     commands:
       - apk add -U git make
       - make fmt
       - make vet
       - make lint
       - make build
+    when:
+      event: [ push, tag, pull_request ]
 
   docker:
     image: plugins/docker
     repo: metalmatze/digitalocean_exporter
-    tags:
-      - latest
+    tags: [ latest ]
     when:
-      event: [ push ]
-      branch: [ master ]
+      event: push
+      branch: master
 
   docker:
     image: plugins/docker
     repo: metalmatze/digitalocean_exporter
-    tags: [ '${TAG}' ]
+    tags: [ '${DRONE_TAG}' ]
     when:
-      event: [ tag ]
-      branch: [ refs/tags/* ]
+      event: tag
+
+  github:
+    image: plugins/github-release
+    files: dist/*
+    when:
+      event: tag
