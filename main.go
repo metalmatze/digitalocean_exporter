@@ -46,6 +46,7 @@ func main() {
 	prometheus.MustRegister(collector.NewVolumeCollector(client))
 	prometheus.MustRegister(collector.NewImageCollector(client))
 	prometheus.MustRegister(collector.NewFloatingIPCollector(client))
+	prometheus.MustRegister(collector.NewKeyCollector(client))
 
 	http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
