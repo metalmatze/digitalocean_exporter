@@ -2,10 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"flag"
 	"log"
+	"net/http"
 
 	"github.com/digitalocean/godo"
+	"github.com/metalmatze/digitalocean_exporter/collector"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/version"
 	"golang.org/x/oauth2"
 )
 
@@ -21,37 +26,36 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 }
 
 func main() {
+	var (
+		listenAddress = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
+		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+		token         = flag.String("do.token", "", "Token you got from DigitalOcean for the API (read-only).")
+	)
+	flag.Parse()
+
 	tokenSource := &TokenSource{
-		AccessToken: token,
+		AccessToken: *token,
 	}
-	oauthClient := oauth2.NewClient(oauth2.NoContext, tokenSource)
+	oauthClient := oauth2.NewClient(context.TODO(), tokenSource)
 	client := godo.NewClient(oauthClient)
 
-	ctx := context.TODO()
+	log.Println("Starting digitalocean_exporter", version.Info())
 
-	droplets, _, err := client.Droplets.List(ctx, &godo.ListOptions{Page:1, PerPage:200})
-	if err != nil {
+	prometheus.MustRegister(collector.NewDropletCollector(client))
+
+	http.Handle(*metricsPath, promhttp.Handler())
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+			<head><title>DigitalOcean Exporter</title></head>
+			<body>
+			<h1>DigitalOcean Exporter</h1>
+			<p><a href="` + *metricsPath + `">Metrics</a></p>
+			</body>
+			</html>`))
+	})
+
+	log.Println("Listening on", *listenAddress)
+	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("# DROPLETS")
-	for _, droplet := range droplets {
-		ip, _ := droplet.PublicIPv4()
-		fmt.Printf("%s(%d:%d), %s, %s, %v\n", droplet.Name, droplet.Vcpus, droplet.Memory, ip, droplet.Created, droplet.Tags)
-	}
-
-	volumes, _, err := client.Storage.ListVolumes(ctx, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("# VOLUMES")
-
-	var totalSize int64
-	for _, vol := range volumes {
-		totalSize = totalSize + vol.SizeGigaBytes
-		fmt.Printf("%s(%d), %d, %v\n", vol.Name, vol.SizeGigaBytes, vol.DropletIDs, vol.CreatedAt)
-	}
-
-	fmt.Printf("You got a total of %d GB volumes for %0.2f€/month\n", totalSize, float64(totalSize)/10)
 }
