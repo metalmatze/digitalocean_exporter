@@ -29,7 +29,7 @@ func (t *TokenSource) Token() (*oauth2.Token, error) {
 
 func main() {
 	var (
-		listenAddress = flag.String("web.listen-address", ":9100", "Address on which to expose metrics and web interface.")
+		listenAddress = flag.String("web.listen-address", ":9211", "Address on which to expose metrics and web interface.")
 		metricsPath   = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 		token         = flag.String("do.token", "", "Token you got from DigitalOcean for the API (read-only).")
 	)
