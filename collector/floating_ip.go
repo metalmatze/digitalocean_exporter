@@ -9,12 +9,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// FloatingIPCollector collects metrics about all floating ips.
 type FloatingIPCollector struct {
 	client *godo.Client
 
 	Active *prometheus.Desc
 }
 
+// NewFloatingIPCollector returns a new FloatingIPCollector.
 func NewFloatingIPCollector(client *godo.Client) *FloatingIPCollector {
 	labels := []string{"droplet_id", "droplet_name", "region", "ipv4"}
 
@@ -29,10 +31,13 @@ func NewFloatingIPCollector(client *godo.Client) *FloatingIPCollector {
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *FloatingIPCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Active
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *FloatingIPCollector) Collect(ch chan<- prometheus.Metric) {
 	floatingIPs, _, err := c.client.FloatingIPs.List(context.TODO(), nil)
 	if err != nil {

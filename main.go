@@ -14,10 +14,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// TokenSource has the AccessToken which is passes to the godo client.
 type TokenSource struct {
 	AccessToken string
 }
 
+// Token returns a token or an error.
 func (t *TokenSource) Token() (*oauth2.Token, error) {
 	token := &oauth2.Token{
 		AccessToken: t.AccessToken,

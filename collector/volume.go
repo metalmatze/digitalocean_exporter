@@ -8,12 +8,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// VolumeCollector collects metrics about all volumes.
 type VolumeCollector struct {
 	client *godo.Client
 
 	Size *prometheus.Desc
 }
 
+// NewVolumeCollector returns a new VolumeCollector.
 func NewVolumeCollector(client *godo.Client) *VolumeCollector {
 	labels := []string{"id", "name", "region"}
 	return &VolumeCollector{
@@ -27,10 +29,13 @@ func NewVolumeCollector(client *godo.Client) *VolumeCollector {
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *VolumeCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Size
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *VolumeCollector) Collect(ch chan<- prometheus.Metric) {
 	volumes, _, err := c.client.Storage.ListVolumes(context.TODO(), nil)
 	if err != nil {

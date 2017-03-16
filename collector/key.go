@@ -9,12 +9,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// KeyCollector collects metrics about ssh keys added to the account.
 type KeyCollector struct {
 	client *godo.Client
 
 	Key *prometheus.Desc
 }
 
+// NewKeyCollector returns a new KeyCollector.
 func NewKeyCollector(client *godo.Client) *KeyCollector {
 	return &KeyCollector{
 		client: client,
@@ -28,10 +30,13 @@ func NewKeyCollector(client *godo.Client) *KeyCollector {
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *KeyCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Key
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *KeyCollector) Collect(ch chan<- prometheus.Metric) {
 	keys, _, err := c.client.Keys.List(context.TODO(), nil)
 	if err != nil {

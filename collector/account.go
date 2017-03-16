@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// AccountCollector collects metrics about the account.
 type AccountCollector struct {
 	client *godo.Client
 
@@ -17,6 +18,7 @@ type AccountCollector struct {
 	Status          *prometheus.Desc
 }
 
+// NewAccountCollector returns a new AccountCollector.
 func NewAccountCollector(client *godo.Client) *AccountCollector {
 	return &AccountCollector{
 		client: client,
@@ -44,6 +46,8 @@ func NewAccountCollector(client *godo.Client) *AccountCollector {
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *AccountCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.DropletLimit
 	ch <- c.FloatingIPLimit
@@ -51,6 +55,7 @@ func (c *AccountCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Status
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *AccountCollector) Collect(ch chan<- prometheus.Metric) {
 	acc, _, err := c.client.Account.Get(context.TODO())
 	if err != nil {

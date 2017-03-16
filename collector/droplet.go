@@ -9,6 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// DropletCollector collects metrics about all droplets.
 type DropletCollector struct {
 	client *godo.Client
 
@@ -20,6 +21,7 @@ type DropletCollector struct {
 	PriceMonthly *prometheus.Desc
 }
 
+// NewDropletCollector returns a new DropletCollector.
 func NewDropletCollector(client *godo.Client) *DropletCollector {
 	labels := []string{"id", "name", "region"}
 
@@ -59,6 +61,8 @@ func NewDropletCollector(client *godo.Client) *DropletCollector {
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *DropletCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Up
 	ch <- c.CPUs
@@ -68,6 +72,7 @@ func (c *DropletCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.PriceMonthly
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 	droplets, _, err := c.client.Droplets.List(context.TODO(), nil)
 	if err != nil {

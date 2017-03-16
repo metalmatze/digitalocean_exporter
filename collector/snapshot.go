@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// SnapshotCollector collects metrics about all snapshots of droplets & volumes.
 type SnapshotCollector struct {
 	client *godo.Client
 
@@ -15,6 +16,7 @@ type SnapshotCollector struct {
 	MinDiskSize *prometheus.Desc
 }
 
+// NewSnapshotCollector returns a new SnapshotCollector.
 func NewSnapshotCollector(client *godo.Client) *SnapshotCollector {
 	labels := []string{"id", "name", "region", "type"}
 	return &SnapshotCollector{
@@ -33,10 +35,13 @@ func NewSnapshotCollector(client *godo.Client) *SnapshotCollector {
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *SnapshotCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Size
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *SnapshotCollector) Collect(ch chan<- prometheus.Metric) {
 	snapshots, _, err := c.client.Snapshots.List(context.TODO(), nil)
 	if err != nil {
