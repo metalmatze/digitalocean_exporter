@@ -3,6 +3,19 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "LYCghBc2aZgHF9jVWrSAwUTLw40=",
+			"path": "github.com/alexflint/go-arg",
+			"revision": "8111804d1774e2f9e2f7f734a15d2fb9ca684685",
+			"revisionTime": "2017-03-10T05:49:31Z"
+		},
+		{
+			"checksumSHA1": "M5vBatiAKUjyLYrb9nS+6QbpEjE=",
+			"origin": "github.com/alexflint/go-arg/vendor/github.com/alexflint/go-scalar",
+			"path": "github.com/alexflint/go-scalar",
+			"revision": "8111804d1774e2f9e2f7f734a15d2fb9ca684685",
+			"revisionTime": "2017-03-10T05:49:31Z"
+		},
+		{
 			"checksumSHA1": "spyv5/YFBjYyZLZa1U2LBfDR8PM=",
 			"path": "github.com/beorn7/perks/quantile",
 			"revision": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9",
@@ -25,6 +38,12 @@
 			"path": "github.com/google/go-querystring/query",
 			"revision": "53e6ce116135b80d037921a7fdd5138cf32d7a8a",
 			"revisionTime": "2017-01-11T10:11:55Z"
+		},
+		{
+			"checksumSHA1": "dzqJ/1M1bbBMOElZ912QHeYQngQ=",
+			"path": "github.com/joho/godotenv",
+			"revision": "d10b3fbe007de7a25e086524ad17597afa3d238b",
+			"revisionTime": "2017-02-21T21:49:41Z"
 		},
 		{
 			"checksumSHA1": "bKMZjd2wPw13VwoE7mBeSv5djFA=",
