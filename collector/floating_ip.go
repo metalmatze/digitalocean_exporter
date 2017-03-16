@@ -2,11 +2,11 @@ package collector
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/digitalocean/godo"
 	"github.com/prometheus/client_golang/prometheus"
-	"fmt"
 )
 
 type FloatingIPCollector struct {
