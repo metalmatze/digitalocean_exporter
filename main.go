@@ -42,6 +42,7 @@ func main() {
 	log.Println("Starting digitalocean_exporter", version.Info())
 
 	prometheus.MustRegister(collector.NewDropletCollector(client))
+	prometheus.MustRegister(collector.NewVolumeCollector(client))
 
 	http.Handle(*metricsPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
