@@ -1,0 +1,30 @@
+workspace:
+  base: /go
+  path: src/github.com/metalmatze/digitalocean_exporter
+
+pipeline:
+  build:
+    image: golang:alpine
+    commands:
+      - apk add -U git make
+      - make fmt
+      - make vet
+      - make lint
+      - make build
+
+  docker:
+    image: plugins/docker
+    repo: metalmatze/digitalocean_exporter
+    tags:
+      - latest
+    when:
+      event: [ push ]
+      branch: [ master ]
+
+  docker:
+    image: plugins/docker
+    repo: metalmatze/digitalocean_exporter
+    tags: [ '${TAG}' ]
+    when:
+      event: [ tag ]
+      branch: [ refs/tags/* ]
