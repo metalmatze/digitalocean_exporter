@@ -1,0 +1,43 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "A7z/LQLYktfSy9b8HMQMjQ+RUbI=",
+			"path": "github.com/digitalocean/godo",
+			"revision": "998925152ab0f9b20ad6e3a324167d9ebe2c229d",
+			"revisionTime": "2017-03-14T20:35:49Z"
+		},
+		{
+			"checksumSHA1": "p3IB18uJRs4dL2K5yx24MrLYE9A=",
+			"path": "github.com/google/go-querystring/query",
+			"revision": "53e6ce116135b80d037921a7fdd5138cf32d7a8a",
+			"revisionTime": "2017-01-11T10:11:55Z"
+		},
+		{
+			"checksumSHA1": "GQ9bu6PuydK3Yor1JgtVKUfEJm8=",
+			"path": "github.com/tent/http-link-go",
+			"revision": "ac974c61c2f990f4115b119354b5e0b47550e888",
+			"revisionTime": "2013-07-02T22:55:49Z"
+		},
+		{
+			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
+			"path": "golang.org/x/net/context",
+			"revision": "a6577fac2d73be281a500b310739095313165611",
+			"revisionTime": "2017-03-08T20:54:49Z"
+		},
+		{
+			"checksumSHA1": "SjCoL7KD7qBmgSuqGTCAuUhigDk=",
+			"path": "golang.org/x/oauth2",
+			"revision": "30fcca6531eb4bb278493c9fb299295b3b145934",
+			"revisionTime": "2017-02-13T18:53:58Z"
+		},
+		{
+			"checksumSHA1": "hEV//Lc2Pb3SUAC36BHgmgrH1gE=",
+			"path": "golang.org/x/oauth2/internal",
+			"revision": "30fcca6531eb4bb278493c9fb299295b3b145934",
+			"revisionTime": "2017-02-13T18:53:58Z"
+		}
+	],
+	"rootPath": "github.com/metalmatze/digitalocean_exporter"
+}
