@@ -61,6 +61,11 @@ func NewDropletCollector(client *godo.Client) *DropletCollector {
 
 func (c *DropletCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Up
+	ch <- c.CPUs
+	ch <- c.Memory
+	ch <- c.Disk
+	ch <- c.PriceHourly
+	ch <- c.PriceMonthly
 }
 
 func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
