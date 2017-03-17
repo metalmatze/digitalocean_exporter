@@ -50,12 +50,12 @@ func NewDropletCollector(client *godo.Client) *DropletCollector {
 		),
 		PriceHourly: prometheus.NewDesc(
 			"digitalocean_droplet_price_hourly",
-			"Price of the Droplet billed hourly",
+			"Price of the Droplet billed hourly in dollars",
 			labels, nil,
 		),
 		PriceMonthly: prometheus.NewDesc(
 			"digitalocean_droplet_price_monthly",
-			"Price of the Droplet billed monthly",
+			"Price of the Droplet billed monthly in dollars",
 			labels, nil,
 		),
 	}
@@ -117,13 +117,13 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(
 			c.PriceHourly,
 			prometheus.GaugeValue,
-			float64(droplet.Size.PriceHourly), // TODO: Find out the correct data type
+			float64(droplet.Size.PriceHourly),
 			labels...,
 		)
 		ch <- prometheus.MustNewConstMetric(
 			c.PriceMonthly,
 			prometheus.GaugeValue,
-			float64(droplet.Size.PriceMonthly), // TODO: Find out the correct data type
+			float64(droplet.Size.PriceMonthly),
 			labels...,
 		)
 	}
