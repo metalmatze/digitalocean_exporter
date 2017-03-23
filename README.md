@@ -16,7 +16,7 @@ go get -u github.com/metalmatze/digitalocean_exporter
 ENV Variable | Description
 |----------|-----|
 | WEB_PATH | Path for metrics, default: `/metrics` |
-| WEB_ADDR | Address for this exporter to run, default: `:9211` |
+| WEB_ADDR | Address for this exporter to run, default: `:9212` |
 | DIGITALOCEAN_TOKEN | Token for API access |
 
 You can get an API token at: https://cloud.digitalocean.com/settings/api/tokens  
@@ -26,7 +26,7 @@ Read-only tokens are sufficient.
 
 ```bash
 docker pull metalmatze/digitalocean_exporter
-docker run --rm -p 9211:9211 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter
+docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter
 ```
 
 Example `docker-compose.yml` with Transmission also running in docker.
@@ -38,7 +38,7 @@ digitalocean_exporter:
     - '-do.token=XXX'
     restart: always
     ports:
-    - "127.0.0.1:9211:9211"
+    - "127.0.0.1:9212:9212"
 ```
 
 ### Development
