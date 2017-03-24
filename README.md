@@ -7,9 +7,8 @@ Prometheus exporter for various metrics about your [DigitalOcean](https://www.di
 
 ### Installation
 
-```bash
-go get -u github.com/metalmatze/digitalocean_exporter
-```
+For pre-built binaries please take a look at the releases.  
+https://github.com/metalmatze/digitalocean_exporter/releases
 
 #### Docker
 
@@ -66,11 +65,20 @@ All metrics have a prefix `digitalocean_` which is omitted in this overview.
 
 ### Development
 
+You obviously should get the code
+
 ```bash
-make
+go get -u github.com/metalmatze/digitalocean_exporter
 ```
 
-For development we encourage you to use `make install` instead, it's faster.
+This should already put a binary called `digitalocean_exporter` into `$GOPATH/bin`.
 
-Now simply copy the `.env.example` to `.env`, like `cp .env.example .env` and set your preferences.
-Now you're good to go.
+Make sure you copy the `.env.example` to `.env` and change this one to your preferences.
+
+Now during development I always run:
+
+```bash
+make install && digitalocean_exporter
+```
+
+Use `make install` which uses `go install` in the background to build faster during development.
