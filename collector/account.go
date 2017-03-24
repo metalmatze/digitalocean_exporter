@@ -15,7 +15,7 @@ type AccountCollector struct {
 	DropletLimit    *prometheus.Desc
 	FloatingIPLimit *prometheus.Desc
 	EmailVerified   *prometheus.Desc
-	Status          *prometheus.Desc
+	Active          *prometheus.Desc
 }
 
 // NewAccountCollector returns a new AccountCollector.
@@ -38,10 +38,10 @@ func NewAccountCollector(client *godo.Client) *AccountCollector {
 			"1 if your email address was verified",
 			nil, nil,
 		),
-		Status: prometheus.NewDesc(
-			"digitalocean_account_status",
+		Active: prometheus.NewDesc(
+			"digitalocean_account_active",
 			"The status of your account",
-			[]string{"status"}, nil,
+			nil, nil,
 		),
 	}
 }
@@ -52,7 +52,7 @@ func (c *AccountCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.DropletLimit
 	ch <- c.FloatingIPLimit
 	ch <- c.EmailVerified
-	ch <- c.Status
+	ch <- c.Active
 }
 
 // Collect is called by the Prometheus registry when collecting metrics.
@@ -88,9 +88,8 @@ func (c *AccountCollector) Collect(ch chan<- prometheus.Metric) {
 		status = 1
 	}
 	ch <- prometheus.MustNewConstMetric(
-		c.Status,
+		c.Active,
 		prometheus.GaugeValue,
 		status,
-		acc.Status,
 	)
 }
