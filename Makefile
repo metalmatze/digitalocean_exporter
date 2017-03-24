@@ -44,3 +44,10 @@ build: $(EXECUTABLE)
 .PHONY: install
 install:
 	$(GO) install -v -ldflags '-w $(LDFLAGS)'
+
+.PHONY: release
+release:
+	@which gox > /dev/null; if [ $$? -ne 0 ]; then \
+		$(GO) get -u github.com/mitchellh/gox; \
+	fi
+	CGO_ENABLED=0 gox -verbose -ldflags '-w $(LDFLAGS)' -output="releases/{{.Dir}}-0.1.{{.OS}}-{{.Arch}}"
