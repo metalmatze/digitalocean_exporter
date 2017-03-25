@@ -11,17 +11,18 @@ pipeline:
       - make fmt
       - make vet
       - make lint
+      - make test
       - make build
     when:
       event: [ push, tag, pull_request ]
 
-  docker:
-    image: plugins/docker
-    repo: metalmatze/digitalocean_exporter
-    tags: [ latest ]
+  release:
+    image: golang:alpine
+    commands:
+      - apk add -U git make
+      - make release
     when:
-      event: push
-      branch: master
+      event: tag
 
   docker:
     image: plugins/docker

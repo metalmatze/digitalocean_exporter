@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"runtime"
 
 	arg "github.com/alexflint/go-arg"
 	"github.com/digitalocean/godo"
@@ -11,8 +13,18 @@ import (
 	"github.com/metalmatze/digitalocean_exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/version"
 	"golang.org/x/oauth2"
+)
+
+var (
+	// Version of drone-test.
+	Version string
+	// Revision or Commit this binary was built from.
+	Revision string
+	// Date this binary was built.
+	Date string
+	// GoVersion running this binary.
+	GoVersion = runtime.Version()
 )
 
 // Config gets its content from env and passes it on to different packages
@@ -28,7 +40,7 @@ func (c Config) Token() (*oauth2.Token, error) {
 }
 
 func main() {
-	log.Println("Starting digitalocean_exporter", version.Info())
+	log.Println("Starting digitalocean_exporter", versionInfo())
 
 	_ = godotenv.Load()
 
@@ -68,4 +80,8 @@ func main() {
 	if err := http.ListenAndServe(c.WebAddr, nil); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func versionInfo() string {
+	return fmt.Sprintf("(version=%s, revision=%s, date=%s, go=%s)", Version, Revision, Date, GoVersion)
 }

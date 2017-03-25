@@ -25,4 +25,4 @@ _testmain.go
 
 /.env
 /digitalocean_exporter
-/releases/
+/dist/
