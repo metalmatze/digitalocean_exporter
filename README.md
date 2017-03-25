@@ -46,9 +46,9 @@ All metrics have a prefix `digitalocean_` which is omitted in this overview.
 
 | Metric | Type | Help |
 | -------|------|------|
+| account_active | gauge | The status of your account |
 | account_droplet_limit | gauge | The maximum number of droplet you can use |
 | account_floating_ip_limit | gauge | The maximum number of floating ips you can use |
-| account_status | gauge | The status of your account |
 | account_verified | gauge | 1 if your email address was verified |
 | droplet_cpus | gauge | Droplet's number of CPUs |
 | droplet_disk_bytes | gauge | Droplet's disk in bytes |
