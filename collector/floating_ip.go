@@ -51,9 +51,17 @@ func (c *FloatingIPCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	for _, ip := range floatingIPs {
+		var active float64
+		var dropletID, dropletName string
+		if ip.Droplet != nil {
+			active = 1
+			dropletID = fmt.Sprintf("%d", ip.Droplet.ID)
+			dropletName = ip.Droplet.Name
+		}
+
 		labels := []string{
-			fmt.Sprintf("%d", ip.Droplet.ID),
-			ip.Droplet.Name,
+			dropletID,
+			dropletName,
 			ip.Region.Slug,
 			ip.IP,
 		}
@@ -61,7 +69,7 @@ func (c *FloatingIPCollector) Collect(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(
 			c.Active,
 			prometheus.GaugeValue,
-			1.0,
+			active,
 			labels...,
 		)
 	}
