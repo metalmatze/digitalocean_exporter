@@ -1,3 +1,11 @@
+## 0.3 / 2017-03-30
+
+* [FEATURE] Add example.rules with my own recording rules & alerts as examples.
+* [FEATURE] Add DEBUG env variable to change log filter on the server.
+* [FEATURE] Expose build_info & start_time metric.
+* [ENHANCEMENT] Use go-kit logger everywhere with levels.
+* [BUGFIX] Don’t crash if floating ip not assigned to droplet. [#1]
+
 ## 0.2 / 2017-03-25
 
 * [ENHANCEMENT] Rename `digitalocean_account_status` to `digitalocean_account_active` 

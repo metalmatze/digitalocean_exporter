@@ -33,9 +33,10 @@ digitalocean_exporter:
 
 ENV Variable | Description
 |----------|-----|
-| WEB_PATH | Path for metrics, default: `/metrics` |
-| WEB_ADDR | Address for this exporter to run, default: `:9212` |
+| DEBUG | If set to true also debug information will be logged, otherwise only info |
 | DIGITALOCEAN_TOKEN | Token for API access |
+| WEB_ADDR | Address for this exporter to run, default: `:9212` |
+| WEB_PATH | Path for metrics, default: `/metrics` |
 
 You can get an API token at: https://cloud.digitalocean.com/settings/api/tokens  
 Read-only tokens are sufficient.
@@ -47,6 +48,7 @@ All metrics have a prefix `digitalocean_` which is omitted in this overview.
 | Metric | Type | Help |
 | -------|------|------|
 | account_active | gauge | The status of your account |
+| build_info | gauge | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built. |
 | account_droplet_limit | gauge | The maximum number of droplet you can use |
 | account_floating_ip_limit | gauge | The maximum number of floating ips you can use |
 | account_verified | gauge | 1 if your email address was verified |
@@ -61,7 +63,13 @@ All metrics have a prefix `digitalocean_` which is omitted in this overview.
 | key | gauge | Information about keys in your digitalocean account |
 | snapshot_min_disk_size_bytes | gauge | Minimum disk size for a droplet/volume to run this snapshot on in bytes |
 | snapshot_size_bytes | gauge | Snapshot's size in bytes |
+| start_time | gauge | Unix timestamp of the start time |
 | volume_size_bytes | gauge | Volume's size in bytes |
+
+### Alerts & Recording Rules
+
+As example alerts and recording rules I have copied my `.rules` file to this repository.
+Please check [example.rules](example.rules).
 
 ### Development
 
