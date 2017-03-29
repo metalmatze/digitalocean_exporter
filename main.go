@@ -70,7 +70,7 @@ func main() {
 	)
 
 	level.Info(logger).Log(
-		"msg", "starting digitalocean_snapper",
+		"msg", "starting digitalocean_exporter",
 		"version", Version,
 		"revision", Revision,
 		"buildDate", BuildDate,
