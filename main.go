@@ -23,8 +23,8 @@ var (
 	Version string
 	// Revision or Commit this binary was built from.
 	Revision string
-	// Date this binary was built.
-	Date string
+	// BuildDate this binary was built.
+	BuildDate string
 	// GoVersion running this binary.
 	GoVersion = runtime.Version()
 	// StartTime has the time this was started.
@@ -67,8 +67,8 @@ func main() {
 		"msg", "starting digitalocean_snapper",
 		"version", Version,
 		"revision", Revision,
-		"date", Date,
-		"go", GoVersion,
+		"buildDate", BuildDate,
+		"goVersion", GoVersion,
 	)
 
 	oauthClient := oauth2.NewClient(context.TODO(), c)
@@ -76,6 +76,7 @@ func main() {
 
 	prometheus.MustRegister(collector.NewAccountCollector(logger, client))
 	prometheus.MustRegister(collector.NewDropletCollector(logger, client))
+	prometheus.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
 	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client))
 	prometheus.MustRegister(collector.NewImageCollector(logger, client))
 	prometheus.MustRegister(collector.NewKeyCollector(logger, client))

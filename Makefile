@@ -5,7 +5,7 @@ DATE := $(shell date -u '+%FT%T%z')
 
 LDFLAGS += -X main.Version=$(DRONE_TAG)
 LDFLAGS += -X main.Revision=$(DRONE_COMMIT)
-LDFLAGS += -X "main.Date=$(DATE)"
+LDFLAGS += -X "main.BuildDate=$(DATE)"
 LDFLAGS += -extldflags '-static'
 
 PACKAGES = $(shell go list ./... | grep -v /vendor/)
