@@ -33,6 +33,7 @@ var (
 
 // Config gets its content from env and passes it on to different packages
 type Config struct {
+	Debug             bool   `arg:"env:DEBUG"`
 	DigitalOceanToken string `arg:"env:DIGITALOCEAN_TOKEN"`
 	WebAddr           string `arg:"env:WEB_ADDR"`
 	WebPath           string `arg:"env:WEB_PATH"`
@@ -56,8 +57,13 @@ func main() {
 		panic("DigitalOcean Token is required")
 	}
 
+	filterOption := level.AllowInfo()
+	if c.Debug {
+		filterOption = level.AllowDebug()
+	}
+
 	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
-	logger = level.NewFilter(logger, level.AllowDebug())
+	logger = level.NewFilter(logger, filterOption)
 	logger = log.With(logger,
 		"ts", log.DefaultTimestampUTC,
 		"caller", log.DefaultCaller,
