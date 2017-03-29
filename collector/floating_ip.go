@@ -3,24 +3,27 @@ package collector
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/digitalocean/godo"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // FloatingIPCollector collects metrics about all floating ips.
 type FloatingIPCollector struct {
+	logger log.Logger
 	client *godo.Client
 
 	Active *prometheus.Desc
 }
 
 // NewFloatingIPCollector returns a new FloatingIPCollector.
-func NewFloatingIPCollector(client *godo.Client) *FloatingIPCollector {
+func NewFloatingIPCollector(logger log.Logger, client *godo.Client) *FloatingIPCollector {
 	labels := []string{"droplet_id", "droplet_name", "region", "ipv4"}
 
 	return &FloatingIPCollector{
+		logger: logger,
 		client: client,
 
 		Active: prometheus.NewDesc(
@@ -41,7 +44,10 @@ func (c *FloatingIPCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *FloatingIPCollector) Collect(ch chan<- prometheus.Metric) {
 	floatingIPs, _, err := c.client.FloatingIPs.List(context.TODO(), nil)
 	if err != nil {
-		log.Printf("Can't list FloatingIPs: %v", err)
+		level.Warn(c.logger).Log(
+			"msg", "can't list floating ips",
+			"err", err,
+		)
 	}
 
 	for _, ip := range floatingIPs {

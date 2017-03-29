@@ -2,23 +2,26 @@ package collector
 
 import (
 	"context"
-	"log"
 
 	"github.com/digitalocean/godo"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // VolumeCollector collects metrics about all volumes.
 type VolumeCollector struct {
+	logger log.Logger
 	client *godo.Client
 
 	Size *prometheus.Desc
 }
 
 // NewVolumeCollector returns a new VolumeCollector.
-func NewVolumeCollector(client *godo.Client) *VolumeCollector {
+func NewVolumeCollector(logger log.Logger, client *godo.Client) *VolumeCollector {
 	labels := []string{"id", "name", "region"}
 	return &VolumeCollector{
+		logger: logger,
 		client: client,
 
 		Size: prometheus.NewDesc(
@@ -39,7 +42,10 @@ func (c *VolumeCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *VolumeCollector) Collect(ch chan<- prometheus.Metric) {
 	volumes, _, err := c.client.Storage.ListVolumes(context.TODO(), nil)
 	if err != nil {
-		log.Printf("Can't list volumes: %v", err)
+		level.Warn(c.logger).Log(
+			"msg", "can't list volumes",
+			"err", err,
+		)
 	}
 
 	for _, vol := range volumes {

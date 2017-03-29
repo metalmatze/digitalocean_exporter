@@ -2,14 +2,16 @@ package collector
 
 import (
 	"context"
-	"log"
 
 	"github.com/digitalocean/godo"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // AccountCollector collects metrics about the account.
 type AccountCollector struct {
+	logger log.Logger
 	client *godo.Client
 
 	DropletLimit    *prometheus.Desc
@@ -19,8 +21,9 @@ type AccountCollector struct {
 }
 
 // NewAccountCollector returns a new AccountCollector.
-func NewAccountCollector(client *godo.Client) *AccountCollector {
+func NewAccountCollector(logger log.Logger, client *godo.Client) *AccountCollector {
 	return &AccountCollector{
+		logger: logger,
 		client: client,
 
 		DropletLimit: prometheus.NewDesc(
@@ -59,7 +62,10 @@ func (c *AccountCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *AccountCollector) Collect(ch chan<- prometheus.Metric) {
 	acc, _, err := c.client.Account.Get(context.TODO())
 	if err != nil {
-		log.Printf("Can't get account: %v", err)
+		level.Warn(c.logger).Log(
+			"msg", "can't get account",
+			"err", err,
+		)
 	}
 
 	ch <- prometheus.MustNewConstMetric(

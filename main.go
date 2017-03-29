@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"net/http"
+	"os"
 	"runtime"
+	"time"
 
 	arg "github.com/alexflint/go-arg"
 	"github.com/digitalocean/godo"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/joho/godotenv"
 	"github.com/metalmatze/digitalocean_exporter/collector"
 	"github.com/prometheus/client_golang/prometheus"
@@ -17,7 +19,7 @@ import (
 )
 
 var (
-	// Version of drone-test.
+	// Version of digitalocean_exporter.
 	Version string
 	// Revision or Commit this binary was built from.
 	Revision string
@@ -25,6 +27,8 @@ var (
 	Date string
 	// GoVersion running this binary.
 	GoVersion = runtime.Version()
+	// StartTime has the time this was started.
+	StartTime = time.Now()
 )
 
 // Config gets its content from env and passes it on to different packages
@@ -40,8 +44,6 @@ func (c Config) Token() (*oauth2.Token, error) {
 }
 
 func main() {
-	log.Println("Starting digitalocean_exporter", versionInfo())
-
 	_ = godotenv.Load()
 
 	c := Config{
@@ -51,19 +53,34 @@ func main() {
 	arg.MustParse(&c)
 
 	if c.DigitalOceanToken == "" {
-		log.Fatal("DigitalOcean Token is required")
+		panic("DigitalOcean Token is required")
 	}
+
+	logger := log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
+	logger = level.NewFilter(logger, level.AllowDebug())
+	logger = log.With(logger,
+		"ts", log.DefaultTimestampUTC,
+		"caller", log.DefaultCaller,
+	)
+
+	level.Info(logger).Log(
+		"msg", "starting digitalocean_snapper",
+		"version", Version,
+		"revision", Revision,
+		"date", Date,
+		"go", GoVersion,
+	)
 
 	oauthClient := oauth2.NewClient(context.TODO(), c)
 	client := godo.NewClient(oauthClient)
 
-	prometheus.MustRegister(collector.NewAccountCollector(client))
-	prometheus.MustRegister(collector.NewDropletCollector(client))
-	prometheus.MustRegister(collector.NewFloatingIPCollector(client))
-	prometheus.MustRegister(collector.NewImageCollector(client))
-	prometheus.MustRegister(collector.NewKeyCollector(client))
-	prometheus.MustRegister(collector.NewSnapshotCollector(client))
-	prometheus.MustRegister(collector.NewVolumeCollector(client))
+	prometheus.MustRegister(collector.NewAccountCollector(logger, client))
+	prometheus.MustRegister(collector.NewDropletCollector(logger, client))
+	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client))
+	prometheus.MustRegister(collector.NewImageCollector(logger, client))
+	prometheus.MustRegister(collector.NewKeyCollector(logger, client))
+	prometheus.MustRegister(collector.NewSnapshotCollector(logger, client))
+	prometheus.MustRegister(collector.NewVolumeCollector(logger, client))
 
 	http.Handle(c.WebPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -76,12 +93,9 @@ func main() {
 			</html>`))
 	})
 
-	log.Println("Listening on", c.WebAddr)
+	level.Info(logger).Log("msg", "listening", "addr", c.WebAddr)
 	if err := http.ListenAndServe(c.WebAddr, nil); err != nil {
-		log.Fatal(err)
+		level.Error(logger).Log("msg", "http listenandserve error", "err", err)
+		os.Exit(1)
 	}
-}
-
-func versionInfo() string {
-	return fmt.Sprintf("(version=%s, revision=%s, date=%s, go=%s)", Version, Revision, Date, GoVersion)
 }

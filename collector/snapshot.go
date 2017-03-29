@@ -2,14 +2,16 @@ package collector
 
 import (
 	"context"
-	"log"
 
 	"github.com/digitalocean/godo"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // SnapshotCollector collects metrics about all snapshots of droplets & volumes.
 type SnapshotCollector struct {
+	logger log.Logger
 	client *godo.Client
 
 	Size        *prometheus.Desc
@@ -17,9 +19,10 @@ type SnapshotCollector struct {
 }
 
 // NewSnapshotCollector returns a new SnapshotCollector.
-func NewSnapshotCollector(client *godo.Client) *SnapshotCollector {
+func NewSnapshotCollector(logger log.Logger, client *godo.Client) *SnapshotCollector {
 	labels := []string{"id", "name", "region", "type"}
 	return &SnapshotCollector{
+		logger: logger,
 		client: client,
 
 		Size: prometheus.NewDesc(
@@ -45,7 +48,10 @@ func (c *SnapshotCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *SnapshotCollector) Collect(ch chan<- prometheus.Metric) {
 	snapshots, _, err := c.client.Snapshots.List(context.TODO(), nil)
 	if err != nil {
-		log.Printf("Can't list snapshots: %v", err)
+		level.Warn(c.logger).Log(
+			"msg", "can't list snapshots",
+			"err", err,
+		)
 	}
 
 	for _, snapshot := range snapshots {

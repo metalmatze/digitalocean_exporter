@@ -3,14 +3,16 @@ package collector
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/digitalocean/godo"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // DropletCollector collects metrics about all droplets.
 type DropletCollector struct {
+	logger log.Logger
 	client *godo.Client
 
 	Up           *prometheus.Desc
@@ -22,10 +24,11 @@ type DropletCollector struct {
 }
 
 // NewDropletCollector returns a new DropletCollector.
-func NewDropletCollector(client *godo.Client) *DropletCollector {
+func NewDropletCollector(logger log.Logger, client *godo.Client) *DropletCollector {
 	labels := []string{"id", "name", "region"}
 
 	return &DropletCollector{
+		logger: logger,
 		client: client,
 
 		Up: prometheus.NewDesc(
@@ -76,7 +79,10 @@ func (c *DropletCollector) Describe(ch chan<- *prometheus.Desc) {
 func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 	droplets, _, err := c.client.Droplets.List(context.TODO(), nil)
 	if err != nil {
-		log.Printf("Can't list droplets: %v", err)
+		level.Warn(c.logger).Log(
+			"msg", "can't list droplets",
+			"err", err,
+		)
 	}
 
 	for _, droplet := range droplets {
