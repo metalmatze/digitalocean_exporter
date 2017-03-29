@@ -13,15 +13,15 @@ https://github.com/metalmatze/digitalocean_exporter/releases
 #### Docker
 
 ```bash
-docker pull metalmatze/digitalocean_exporter:0.2
-docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.2
+docker pull metalmatze/digitalocean_exporter:0.3
+docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.3
 ```
 
 Example `docker-compose.yml` with Transmission also running in docker.
 
 ```yaml
 digitalocean_exporter:
-    image: metalmatze/digitalocean_exporter:0.2
+    image: metalmatze/digitalocean_exporter:0.3
     environment:
     - '-do.token=XXX'
     restart: always
@@ -68,7 +68,7 @@ All metrics have a prefix `digitalocean_` which is omitted in this overview.
 
 ### Alerts & Recording Rules
 
-As example alerts and recording rules I have copied my `.rules` file to this repository.
+As example alerts and recording rules I have copied my `.rules` file to this repository.  
 Please check [example.rules](example.rules).
 
 ### Development
