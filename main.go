@@ -81,6 +81,7 @@ func main() {
 	client := godo.NewClient(oauthClient)
 
 	prometheus.MustRegister(collector.NewAccountCollector(logger, client))
+	prometheus.MustRegister(collector.NewDomainCollector(logger, client))
 	prometheus.MustRegister(collector.NewDropletCollector(logger, client))
 	prometheus.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
 	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client))
