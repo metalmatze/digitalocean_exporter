@@ -35,6 +35,7 @@ var (
 type Config struct {
 	Debug             bool   `arg:"env:DEBUG"`
 	DigitalOceanToken string `arg:"env:DIGITALOCEAN_TOKEN"`
+	HttpTimeout       int    `arg:"env:HTTP_TIMEOUT"`
 	WebAddr           string `arg:"env:WEB_ADDR"`
 	WebPath           string `arg:"env:WEB_PATH"`
 }
@@ -48,8 +49,9 @@ func main() {
 	_ = godotenv.Load()
 
 	c := Config{
-		WebPath: "/metrics",
-		WebAddr: ":9212",
+		HttpTimeout: 5000,
+		WebPath:     "/metrics",
+		WebAddr:     ":9212",
 	}
 	arg.MustParse(&c)
 
@@ -80,15 +82,17 @@ func main() {
 	oauthClient := oauth2.NewClient(context.TODO(), c)
 	client := godo.NewClient(oauthClient)
 
-	prometheus.MustRegister(collector.NewAccountCollector(logger, client))
-	prometheus.MustRegister(collector.NewDomainCollector(logger, client))
-	prometheus.MustRegister(collector.NewDropletCollector(logger, client))
+	timeout := time.Duration(c.HttpTimeout) * time.Millisecond
+
+	prometheus.MustRegister(collector.NewAccountCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewDomainCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewDropletCollector(logger, client, timeout))
 	prometheus.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
-	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client))
-	prometheus.MustRegister(collector.NewImageCollector(logger, client))
-	prometheus.MustRegister(collector.NewKeyCollector(logger, client))
-	prometheus.MustRegister(collector.NewSnapshotCollector(logger, client))
-	prometheus.MustRegister(collector.NewVolumeCollector(logger, client))
+	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewImageCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewKeyCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewSnapshotCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewVolumeCollector(logger, client, timeout))
 
 	http.Handle(c.WebPath, promhttp.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

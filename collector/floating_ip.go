@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -12,19 +13,21 @@ import (
 
 // FloatingIPCollector collects metrics about all floating ips.
 type FloatingIPCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	Active *prometheus.Desc
 }
 
 // NewFloatingIPCollector returns a new FloatingIPCollector.
-func NewFloatingIPCollector(logger log.Logger, client *godo.Client) *FloatingIPCollector {
+func NewFloatingIPCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *FloatingIPCollector {
 	labels := []string{"droplet_id", "droplet_name", "region", "ipv4"}
 
 	return &FloatingIPCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		Active: prometheus.NewDesc(
 			"digitalocean_floating_ipv4_active",
@@ -42,12 +45,15 @@ func (c *FloatingIPCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *FloatingIPCollector) Collect(ch chan<- prometheus.Metric) {
-	floatingIPs, _, err := c.client.FloatingIPs.List(context.TODO(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	floatingIPs, _, err := c.client.FloatingIPs.List(ctx, nil)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't list floating ips",
 			"err", err,
 		)
+		return
 	}
 
 	for _, ip := range floatingIPs {

@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -12,18 +13,20 @@ import (
 
 // ImageCollector collects metrics about all images created by the user.
 type ImageCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	MinDiskSize *prometheus.Desc
 }
 
 // NewImageCollector returns a new ImageCollector.
-func NewImageCollector(logger log.Logger, client *godo.Client) *ImageCollector {
+func NewImageCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *ImageCollector {
 	labels := []string{"id", "name", "region", "type", "distribution"}
 	return &ImageCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		MinDiskSize: prometheus.NewDesc(
 			"digitalocean_image_min_disk_size_bytes",
@@ -41,12 +44,15 @@ func (c *ImageCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *ImageCollector) Collect(ch chan<- prometheus.Metric) {
-	images, _, err := c.client.Images.ListUser(context.TODO(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	images, _, err := c.client.Images.ListUser(ctx, nil)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't list volumes",
 			"err", err,
 		)
+		return
 	}
 
 	for _, img := range images {

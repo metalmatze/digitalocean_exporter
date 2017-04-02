@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -12,8 +13,9 @@ import (
 
 // DropletCollector collects metrics about all droplets.
 type DropletCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	Up           *prometheus.Desc
 	CPUs         *prometheus.Desc
@@ -24,12 +26,13 @@ type DropletCollector struct {
 }
 
 // NewDropletCollector returns a new DropletCollector.
-func NewDropletCollector(logger log.Logger, client *godo.Client) *DropletCollector {
+func NewDropletCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *DropletCollector {
 	labels := []string{"id", "name", "region"}
 
 	return &DropletCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		Up: prometheus.NewDesc(
 			"digitalocean_droplet_up",
@@ -77,7 +80,9 @@ func (c *DropletCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
-	droplets, _, err := c.client.Droplets.List(context.TODO(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	droplets, _, err := c.client.Droplets.List(ctx, nil)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't list droplets",

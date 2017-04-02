@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -12,17 +13,19 @@ import (
 
 // KeyCollector collects metrics about ssh keys added to the account.
 type KeyCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	Key *prometheus.Desc
 }
 
 // NewKeyCollector returns a new KeyCollector.
-func NewKeyCollector(logger log.Logger, client *godo.Client) *KeyCollector {
+func NewKeyCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *KeyCollector {
 	return &KeyCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		Key: prometheus.NewDesc(
 			"digitalocean_key",
@@ -41,7 +44,9 @@ func (c *KeyCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *KeyCollector) Collect(ch chan<- prometheus.Metric) {
-	keys, _, err := c.client.Keys.List(context.TODO(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	keys, _, err := c.client.Keys.List(ctx, nil)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't list keys",

@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -11,19 +12,21 @@ import (
 
 // SnapshotCollector collects metrics about all snapshots of droplets & volumes.
 type SnapshotCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	Size        *prometheus.Desc
 	MinDiskSize *prometheus.Desc
 }
 
 // NewSnapshotCollector returns a new SnapshotCollector.
-func NewSnapshotCollector(logger log.Logger, client *godo.Client) *SnapshotCollector {
+func NewSnapshotCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *SnapshotCollector {
 	labels := []string{"id", "name", "region", "type"}
 	return &SnapshotCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		Size: prometheus.NewDesc(
 			"digitalocean_snapshot_size_bytes",
@@ -46,12 +49,15 @@ func (c *SnapshotCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *SnapshotCollector) Collect(ch chan<- prometheus.Metric) {
-	snapshots, _, err := c.client.Snapshots.List(context.TODO(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	snapshots, _, err := c.client.Snapshots.List(ctx, nil)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't list snapshots",
 			"err", err,
 		)
+		return
 	}
 
 	for _, snapshot := range snapshots {

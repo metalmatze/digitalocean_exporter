@@ -2,6 +2,7 @@ package collector
 
 import (
 	"context"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -11,8 +12,9 @@ import (
 
 // AccountCollector collects metrics about the account.
 type AccountCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	DropletLimit    *prometheus.Desc
 	FloatingIPLimit *prometheus.Desc
@@ -21,10 +23,11 @@ type AccountCollector struct {
 }
 
 // NewAccountCollector returns a new AccountCollector.
-func NewAccountCollector(logger log.Logger, client *godo.Client) *AccountCollector {
+func NewAccountCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *AccountCollector {
 	return &AccountCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		DropletLimit: prometheus.NewDesc(
 			"digitalocean_account_droplet_limit",
@@ -60,12 +63,15 @@ func (c *AccountCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *AccountCollector) Collect(ch chan<- prometheus.Metric) {
-	acc, _, err := c.client.Account.Get(context.TODO())
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+	acc, _, err := c.client.Account.Get(ctx)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't get account",
 			"err", err,
 		)
+		return
 	}
 
 	ch <- prometheus.MustNewConstMetric(

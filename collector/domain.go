@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/digitalocean/godo"
 	"github.com/go-kit/kit/log"
@@ -12,8 +13,9 @@ import (
 
 // DomainCollector collects metrics about all images created by the user.
 type DomainCollector struct {
-	logger log.Logger
-	client *godo.Client
+	logger  log.Logger
+	client  *godo.Client
+	timeout time.Duration
 
 	DomainRecordPort     *prometheus.Desc
 	DomainRecordPriority *prometheus.Desc
@@ -22,12 +24,13 @@ type DomainCollector struct {
 }
 
 // NewDomainCollector returns a new DomainCollector.
-func NewDomainCollector(logger log.Logger, client *godo.Client) *DomainCollector {
+func NewDomainCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *DomainCollector {
 	recordLabels := []string{"id", "name", "type", "data"}
 
 	return &DomainCollector{
-		logger: logger,
-		client: client,
+		logger:  logger,
+		client:  client,
+		timeout: timeout,
 
 		DomainRecordPort: prometheus.NewDesc(
 			"digitalocean_domain_record_port",
@@ -63,12 +66,16 @@ func (c *DomainCollector) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect is called by the Prometheus registry when collecting metrics.
 func (c *DomainCollector) Collect(ch chan<- prometheus.Metric) {
-	domains, _, err := c.client.Domains.List(context.TODO(), nil)
+	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
+	defer cancel()
+
+	domains, _, err := c.client.Domains.List(ctx, nil)
 	if err != nil {
 		level.Warn(c.logger).Log(
 			"msg", "can't list domains",
 			"err", err,
 		)
+		return
 	}
 
 	for _, domain := range domains {
@@ -79,7 +86,10 @@ func (c *DomainCollector) Collect(ch chan<- prometheus.Metric) {
 			domain.Name,
 		)
 
-		records, _, _ := c.client.Domains.Records(context.TODO(), domain.Name, nil)
+		//ctx, cancel := context.WithTimeout(ctx, c.timeout)
+		//cancel()
+		ctx := context.TODO()
+		records, _, _ := c.client.Domains.Records(ctx, domain.Name, nil)
 		for _, record := range records {
 			ch <- prometheus.MustNewConstMetric(
 				c.DomainRecordPort,
