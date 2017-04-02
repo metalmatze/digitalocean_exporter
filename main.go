@@ -35,7 +35,7 @@ var (
 type Config struct {
 	Debug             bool   `arg:"env:DEBUG"`
 	DigitalOceanToken string `arg:"env:DIGITALOCEAN_TOKEN"`
-	HttpTimeout       int    `arg:"env:HTTP_TIMEOUT"`
+	HTTPTimeout       int    `arg:"env:HTTP_TIMEOUT"`
 	WebAddr           string `arg:"env:WEB_ADDR"`
 	WebPath           string `arg:"env:WEB_PATH"`
 }
@@ -49,7 +49,7 @@ func main() {
 	_ = godotenv.Load()
 
 	c := Config{
-		HttpTimeout: 5000,
+		HTTPTimeout: 5000,
 		WebPath:     "/metrics",
 		WebAddr:     ":9212",
 	}
@@ -82,7 +82,7 @@ func main() {
 	oauthClient := oauth2.NewClient(context.TODO(), c)
 	client := godo.NewClient(oauthClient)
 
-	timeout := time.Duration(c.HttpTimeout) * time.Millisecond
+	timeout := time.Duration(c.HTTPTimeout) * time.Millisecond
 
 	prometheus.MustRegister(collector.NewAccountCollector(logger, client, timeout))
 	prometheus.MustRegister(collector.NewDomainCollector(logger, client, timeout))
