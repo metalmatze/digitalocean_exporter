@@ -1,3 +1,8 @@
+## 0.4 / 2017-04-03
+
+* [FEATURE] Add metrics for `domain_record_port`, `domain_record_priority`, `domain_record_weight`, `domain_ttl_seconds`.
+* [ENHANCEMENT] Use timeouts with a default 5000ms for evey godo request.
+
 ## 0.3 / 2017-03-30
 
 * [FEATURE] Add example.rules with my own recording rules & alerts as examples.

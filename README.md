@@ -13,15 +13,15 @@ https://github.com/metalmatze/digitalocean_exporter/releases
 #### Docker
 
 ```bash
-docker pull metalmatze/digitalocean_exporter:0.3
-docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.3
+docker pull metalmatze/digitalocean_exporter:0.4
+docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.4
 ```
 
 Example `docker-compose.yml` with Transmission also running in docker.
 
 ```yaml
 digitalocean_exporter:
-    image: metalmatze/digitalocean_exporter:0.3
+    image: metalmatze/digitalocean_exporter:0.4
     environment:
     - '-do.token=XXX'
     restart: always
@@ -35,6 +35,7 @@ ENV Variable | Description
 |----------|-----|
 | DEBUG | If set to true also debug information will be logged, otherwise only info |
 | DIGITALOCEAN_TOKEN | Token for API access |
+| HTTP_TIMEOUT | Timeout for the godo client, default: `5000`ms | 
 | WEB_ADDR | Address for this exporter to run, default: `:9212` |
 | WEB_PATH | Path for metrics, default: `/metrics` |
 
@@ -52,6 +53,10 @@ All metrics have a prefix `digitalocean_` which is omitted in this overview.
 | account_droplet_limit | gauge | The maximum number of droplet you can use |
 | account_floating_ip_limit | gauge | The maximum number of floating ips you can use |
 | account_verified | gauge | 1 if your email address was verified |
+| domain_record_port | gauge | The port for SRV records |
+| domain_record_priority | gauge | The priority for SRV and MX records |
+| domain_record_weight | gauge | The weight for SRV records |
+| domain_ttl_seconds | gauge | Seconds that clients can cache queried information before a refresh should be requested |
 | droplet_cpus | gauge | Droplet's number of CPUs |
 | droplet_disk_bytes | gauge | Droplet's disk in bytes |
 | droplet_memory_bytes | gauge | Droplet's memory in bytes |
