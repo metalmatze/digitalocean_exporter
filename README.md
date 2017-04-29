@@ -46,30 +46,30 @@ Read-only tokens are sufficient.
 
 All metrics have a prefix `digitalocean_` which is omitted in this overview.
 
-| Metric | Type | Help |
-| -------|------|------|
-| account_active | gauge | The status of your account |
-| build_info | gauge | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built. |
-| account_droplet_limit | gauge | The maximum number of droplet you can use |
-| account_floating_ip_limit | gauge | The maximum number of floating ips you can use |
-| account_verified | gauge | 1 if your email address was verified |
-| domain_record_port | gauge | The port for SRV records |
-| domain_record_priority | gauge | The priority for SRV and MX records |
-| domain_record_weight | gauge | The weight for SRV records |
-| domain_ttl_seconds | gauge | Seconds that clients can cache queried information before a refresh should be requested |
-| droplet_cpus | gauge | Droplet's number of CPUs |
-| droplet_disk_bytes | gauge | Droplet's disk in bytes |
-| droplet_memory_bytes | gauge | Droplet's memory in bytes |
-| droplet_price_hourly | gauge | Price of the Droplet billed hourly |
-| droplet_price_monthly | gauge | Price of the Droplet billed monthly |
-| droplet_up | gauge | If 1 the droplet is up and running, 0 otherwise |
-| floating_ipv4_active | gauge | If 1 the floating ip used by a droplet, 0 otherwise |
-| image_min_disk_size_bytes | gauge | Minimum disk size for a droplet to run this image on in bytes |
-| key | gauge | Information about keys in your digitalocean account |
-| snapshot_min_disk_size_bytes | gauge | Minimum disk size for a droplet/volume to run this snapshot on in bytes |
-| snapshot_size_bytes | gauge | Snapshot's size in bytes |
-| start_time | gauge | Unix timestamp of the start time |
-| volume_size_bytes | gauge | Volume's size in bytes |
+|Name                                         |Type     |Cardinality   |Help
+|----                                         |----     |-----------   |----
+| digitalocean_account_active                 | gauge   | 1            | The status of your account
+| digitalocean_account_droplet_limit          | gauge   | 1            | The maximum number of droplet you can use
+| digitalocean_account_floating_ip_limit      | gauge   | 1            | The maximum number of floating ips you can use
+| digitalocean_account_verified               | gauge   | 1            | 1 if your email address was verified
+| digitalocean_build_info                     | gauge   | 1            | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built.
+| digitalocean_domain_record_port             | gauge   | 7            | The port for SRV records
+| digitalocean_domain_record_priority         | gauge   | 7            | The priority for SRV and MX records
+| digitalocean_domain_record_weight           | gauge   | 7            | The weight for SRV records
+| digitalocean_domain_ttl_seconds             | gauge   | 1            | Seconds that clients can cache queried information before a refresh should be requested
+| digitalocean_droplet_cpus                   | gauge   | 4            | Droplet's number of CPUs
+| digitalocean_droplet_disk_bytes             | gauge   | 4            | Droplet's disk in bytes
+| digitalocean_droplet_memory_bytes           | gauge   | 4            | Droplet's memory in bytes
+| digitalocean_droplet_price_hourly           | gauge   | 4            | Price of the Droplet billed hourly in dollars
+| digitalocean_droplet_price_monthly          | gauge   | 4            | Price of the Droplet billed monthly in dollars
+| digitalocean_droplet_up                     | gauge   | 4            | If 1 the droplet is up and running, 0 otherwise
+| digitalocean_floating_ipv4_active           | gauge   | 1            | If 1 the floating ip used by a droplet, 0 otherwise
+| digitalocean_image_min_disk_size_bytes      | gauge   | 4            | Minimum disk size for a droplet to run this image on in bytes
+| digitalocean_key                            | gauge   | 1            | Information about keys in your digitalocean account
+| digitalocean_snapshot_min_disk_size_bytes   | gauge   | 20           | Minimum disk size for a droplet/volume to run this snapshot on in bytes
+| digitalocean_snapshot_size_bytes            | gauge   | 7            | Snapshot's size in bytes
+| digitalocean_start_time                     | gauge   | 1            | Unix timestamp of the start time
+| digitalocean_volume_size_bytes              | gauge   | 11           | Volume's size in bytes
 
 ### Alerts & Recording Rules
 
