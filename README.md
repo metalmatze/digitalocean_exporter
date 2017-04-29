@@ -44,8 +44,6 @@ Read-only tokens are sufficient.
 
 ### Metrics
 
-All metrics have a prefix `digitalocean_` which is omitted in this overview.
-
 |Name                                         |Type     |Cardinality   |Help
 |----                                         |----     |-----------   |----
 | digitalocean_account_active                 | gauge   | 1            | The status of your account
