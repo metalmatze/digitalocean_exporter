@@ -1,0 +1,42 @@
+groups:
+- name: digitalocean.rules
+  rules:
+  - record: digitalocean_droplets_price_monthly
+    expr: sum(digitalocean_droplet_price_monthly)
+  - record: digitalocean_snapshots_price_monthly
+    expr: sum(digitalocean_snapshot_size_bytes) / 1024 / 1024 / 1024 / 20
+  - record: digitalocean_volumes_price_monthly
+    expr: sum(digitalocean_volume_size_bytes) / 1024 / 1024 / 1024 / 10
+  - record: digitalocean_price_monthly
+    expr: digitalocean_droplets_price_monthly + digitalocean_volumes_price_monthly + digitalocean_snapshots_price_monthly
+  - alert: droplet_down
+    expr: digitalocean_droplet_up == 0
+    for: 5m
+    annotations:
+      description: Droplet {{ $labels.name }} in region {{ $labels.region }} is down.
+      summary: Droplet is down.
+  - alert: high_monthly_price
+    expr: digitalocean_price_monthly > 100
+    for: 6h
+    annotations:
+      description: Overall we're spending too much money. Please try to minimize cost.
+      summary: Paying too much at DigitalOcean.
+  - alert: floating_ip_unused
+    expr: digitalocean_floating_ipv4_active == 0
+    for: 1h
+    annotations:
+      description: Paying ~5$/month for {{ $labels.ipv4 }}, an unused Floating IP.
+      summary: Paying for an unsed FloatingIP.
+  - alert: too_many_packer_snapshots
+    expr: count(digitalocean_snapshot_size_bytes{name=~"packer-.*",type="droplet"})
+      > 10
+    for: 6h
+    annotations:
+      description: Please delete old packer snapshots. We don't need {{$value}}.
+      summary: More than 10 Packer Snapshots.
+  - alert: too_few_ssh_keys
+    expr: count(digitalocean_key) < 1
+    for: 1h
+    annotations:
+      description: We can't find SSH keys, please add at least one.
+      summary: No SSH Keys.

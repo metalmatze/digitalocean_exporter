@@ -72,7 +72,7 @@ Read-only tokens are sufficient.
 ### Alerts & Recording Rules
 
 As example alerts and recording rules I have copied my `.rules` file to this repository.  
-Please check [example.rules](example.rules).
+Please check [example.rules.yaml](example.rules.yml).
 
 ### Development
 
