@@ -1,9 +1,12 @@
 package godo
 
 import (
-	"context"
 	"fmt"
 	"time"
+
+	"net/http"
+
+	"github.com/digitalocean/godo/context"
 )
 
 const (
@@ -73,6 +76,7 @@ type VolumeCreateRequest struct {
 	Name          string `json:"name"`
 	Description   string `json:"description"`
 	SizeGigaBytes int64  `json:"size_gigabytes"`
+	SnapshotID    string `json:"snapshot_id"`
 }
 
 // ListVolumes lists all storage volumes.
@@ -92,13 +96,13 @@ func (svc *StorageServiceOp) ListVolumes(ctx context.Context, params *ListVolume
 		}
 	}
 
-	req, err := svc.client.NewRequest(ctx, "GET", path, nil)
+	req, err := svc.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(storageVolumesRoot)
-	resp, err := svc.client.Do(req, root)
+	resp, err := svc.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -114,13 +118,13 @@ func (svc *StorageServiceOp) ListVolumes(ctx context.Context, params *ListVolume
 func (svc *StorageServiceOp) CreateVolume(ctx context.Context, createRequest *VolumeCreateRequest) (*Volume, *Response, error) {
 	path := storageAllocPath
 
-	req, err := svc.client.NewRequest(ctx, "POST", path, createRequest)
+	req, err := svc.client.NewRequest(ctx, http.MethodPost, path, createRequest)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(storageVolumeRoot)
-	resp, err := svc.client.Do(req, root)
+	resp, err := svc.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -131,13 +135,13 @@ func (svc *StorageServiceOp) CreateVolume(ctx context.Context, createRequest *Vo
 func (svc *StorageServiceOp) GetVolume(ctx context.Context, id string) (*Volume, *Response, error) {
 	path := fmt.Sprintf("%s/%s", storageAllocPath, id)
 
-	req, err := svc.client.NewRequest(ctx, "GET", path, nil)
+	req, err := svc.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(storageVolumeRoot)
-	resp, err := svc.client.Do(req, root)
+	resp, err := svc.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -149,11 +153,11 @@ func (svc *StorageServiceOp) GetVolume(ctx context.Context, id string) (*Volume,
 func (svc *StorageServiceOp) DeleteVolume(ctx context.Context, id string) (*Response, error) {
 	path := fmt.Sprintf("%s/%s", storageAllocPath, id)
 
-	req, err := svc.client.NewRequest(ctx, "DELETE", path, nil)
+	req, err := svc.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return nil, err
 	}
-	return svc.client.Do(req, nil)
+	return svc.client.Do(ctx, req, nil)
 }
 
 // SnapshotCreateRequest represents a request to create a block store
@@ -172,13 +176,13 @@ func (svc *StorageServiceOp) ListSnapshots(ctx context.Context, volumeID string,
 		return nil, nil, err
 	}
 
-	req, err := svc.client.NewRequest(ctx, "GET", path, nil)
+	req, err := svc.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(snapshotsRoot)
-	resp, err := svc.client.Do(req, root)
+	resp, err := svc.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -194,13 +198,13 @@ func (svc *StorageServiceOp) ListSnapshots(ctx context.Context, volumeID string,
 func (svc *StorageServiceOp) CreateSnapshot(ctx context.Context, createRequest *SnapshotCreateRequest) (*Snapshot, *Response, error) {
 	path := fmt.Sprintf("%s/%s/snapshots", storageAllocPath, createRequest.VolumeID)
 
-	req, err := svc.client.NewRequest(ctx, "POST", path, createRequest)
+	req, err := svc.client.NewRequest(ctx, http.MethodPost, path, createRequest)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(snapshotRoot)
-	resp, err := svc.client.Do(req, root)
+	resp, err := svc.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -211,13 +215,13 @@ func (svc *StorageServiceOp) CreateSnapshot(ctx context.Context, createRequest *
 func (svc *StorageServiceOp) GetSnapshot(ctx context.Context, id string) (*Snapshot, *Response, error) {
 	path := fmt.Sprintf("%s/%s", storageSnapPath, id)
 
-	req, err := svc.client.NewRequest(ctx, "GET", path, nil)
+	req, err := svc.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(snapshotRoot)
-	resp, err := svc.client.Do(req, root)
+	resp, err := svc.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -229,9 +233,9 @@ func (svc *StorageServiceOp) GetSnapshot(ctx context.Context, id string) (*Snaps
 func (svc *StorageServiceOp) DeleteSnapshot(ctx context.Context, id string) (*Response, error) {
 	path := fmt.Sprintf("%s/%s", storageSnapPath, id)
 
-	req, err := svc.client.NewRequest(ctx, "DELETE", path, nil)
+	req, err := svc.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return nil, err
 	}
-	return svc.client.Do(req, nil)
+	return svc.client.Do(ctx, req, nil)
 }

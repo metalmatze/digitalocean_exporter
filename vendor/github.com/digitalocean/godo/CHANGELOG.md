@@ -1,5 +1,20 @@
 # Change Log
 
+## [v1.1.1] - 2017-09-29
+
+- #151 Following user agent field recommendations - @joonas
+- #148 AsRequest method to create load balancers requests - @lukegb
+
+## [v1.1.0] - 2017-06-06
+
+### Added
+- #145 Add FirewallsService for managing Firewalls with the DigitalOcean API. - @viola
+- #139 Add TTL field to the Domains. - @xmudrii
+
+### Fixed
+- #143 Fix oauth2.NoContext depreciation. - @jbowens
+- #141 Fix DropletActions on tagged resources. - @xmudrii
+
 ## [v1.0.0] - 2017-03-10
 
 ### Added

@@ -1,8 +1,10 @@
 package godo
 
 import (
-	"context"
 	"fmt"
+	"net/http"
+
+	"github.com/digitalocean/godo/context"
 )
 
 const floatingBasePath = "v2/floating_ips"
@@ -62,13 +64,13 @@ func (f *FloatingIPsServiceOp) List(ctx context.Context, opt *ListOptions) ([]Fl
 		return nil, nil, err
 	}
 
-	req, err := f.client.NewRequest(ctx, "GET", path, nil)
+	req, err := f.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(floatingIPsRoot)
-	resp, err := f.client.Do(req, root)
+	resp, err := f.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -83,13 +85,13 @@ func (f *FloatingIPsServiceOp) List(ctx context.Context, opt *ListOptions) ([]Fl
 func (f *FloatingIPsServiceOp) Get(ctx context.Context, ip string) (*FloatingIP, *Response, error) {
 	path := fmt.Sprintf("%s/%s", floatingBasePath, ip)
 
-	req, err := f.client.NewRequest(ctx, "GET", path, nil)
+	req, err := f.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(floatingIPRoot)
-	resp, err := f.client.Do(req, root)
+	resp, err := f.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -102,13 +104,13 @@ func (f *FloatingIPsServiceOp) Get(ctx context.Context, ip string) (*FloatingIP,
 func (f *FloatingIPsServiceOp) Create(ctx context.Context, createRequest *FloatingIPCreateRequest) (*FloatingIP, *Response, error) {
 	path := floatingBasePath
 
-	req, err := f.client.NewRequest(ctx, "POST", path, createRequest)
+	req, err := f.client.NewRequest(ctx, http.MethodPost, path, createRequest)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(floatingIPRoot)
-	resp, err := f.client.Do(req, root)
+	resp, err := f.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -123,12 +125,12 @@ func (f *FloatingIPsServiceOp) Create(ctx context.Context, createRequest *Floati
 func (f *FloatingIPsServiceOp) Delete(ctx context.Context, ip string) (*Response, error) {
 	path := fmt.Sprintf("%s/%s", floatingBasePath, ip)
 
-	req, err := f.client.NewRequest(ctx, "DELETE", path, nil)
+	req, err := f.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := f.client.Do(req, nil)
+	resp, err := f.client.Do(ctx, req, nil)
 
 	return resp, err
 }

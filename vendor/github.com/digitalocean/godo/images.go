@@ -1,8 +1,10 @@
 package godo
 
 import (
-	"context"
 	"fmt"
+	"net/http"
+
+	"github.com/digitalocean/godo/context"
 )
 
 const imageBasePath = "v2/images"
@@ -123,7 +125,7 @@ func (s *ImagesServiceOp) Update(ctx context.Context, imageID int, updateRequest
 	}
 
 	root := new(imageRoot)
-	resp, err := s.client.Do(req, root)
+	resp, err := s.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -139,12 +141,12 @@ func (s *ImagesServiceOp) Delete(ctx context.Context, imageID int) (*Response, e
 
 	path := fmt.Sprintf("%s/%d", imageBasePath, imageID)
 
-	req, err := s.client.NewRequest(ctx, "DELETE", path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodDelete, path, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := s.client.Do(req, nil)
+	resp, err := s.client.Do(ctx, req, nil)
 
 	return resp, err
 }
@@ -153,13 +155,13 @@ func (s *ImagesServiceOp) Delete(ctx context.Context, imageID int) (*Response, e
 func (s *ImagesServiceOp) get(ctx context.Context, ID interface{}) (*Image, *Response, error) {
 	path := fmt.Sprintf("%s/%v", imageBasePath, ID)
 
-	req, err := s.client.NewRequest(ctx, "GET", path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(imageRoot)
-	resp, err := s.client.Do(req, root)
+	resp, err := s.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -179,13 +181,13 @@ func (s *ImagesServiceOp) list(ctx context.Context, opt *ListOptions, listOpt *l
 		return nil, nil, err
 	}
 
-	req, err := s.client.NewRequest(ctx, "GET", path, nil)
+	req, err := s.client.NewRequest(ctx, http.MethodGet, path, nil)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	root := new(imagesRoot)
-	resp, err := s.client.Do(req, root)
+	resp, err := s.client.Do(ctx, req, root)
 	if err != nil {
 		return nil, resp, err
 	}

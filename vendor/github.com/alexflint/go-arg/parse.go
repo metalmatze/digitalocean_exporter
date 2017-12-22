@@ -153,6 +153,11 @@ func NewParser(config Config, dests ...interface{}) (*Parser, error) {
 				dest: val,
 			}
 
+			help, exists := field.Tag.Lookup("help")
+			if exists {
+				spec.help = help
+			}
+
 			// Check whether this field is supported. It's good to do this here rather than
 			// wait until setScalar because it means that a program with invalid argument
 			// fields will always fail regardless of whether the arguments it received
@@ -168,6 +173,7 @@ func NewParser(config Config, dests ...interface{}) (*Parser, error) {
 			// Look at the tag
 			if tag != "" {
 				for _, key := range strings.Split(tag, ",") {
+					key = strings.TrimLeft(key, " ")
 					var value string
 					if pos := strings.Index(key, ":"); pos != -1 {
 						value = key[pos+1:]
@@ -192,7 +198,7 @@ func NewParser(config Config, dests ...interface{}) (*Parser, error) {
 						spec.positional = true
 					case key == "separate":
 						spec.separate = true
-					case key == "help":
+					case key == "help": // deprecated
 						spec.help = value
 					case key == "env":
 						// Use override name if provided
@@ -356,6 +362,9 @@ func process(specs []*spec, args []string) error {
 	for _, spec := range specs {
 		if spec.positional {
 			if spec.multiple {
+				if spec.required && len(positionals) == 0 {
+					return fmt.Errorf("%s is required", spec.long)
+				}
 				err := setSlice(spec.dest, positionals, true)
 				if err != nil {
 					return fmt.Errorf("error processing %s: %v", spec.long, err)
