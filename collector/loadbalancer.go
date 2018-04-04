@@ -10,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
+// LoadBalancerCollector collects metrics about LoadBalancers of that account.
 type LoadBalancerCollector struct {
 	logger  log.Logger
 	client  *godo.Client
@@ -19,6 +20,7 @@ type LoadBalancerCollector struct {
 	Status   *prometheus.Desc
 }
 
+// NewLoadBalancerCollector returns a new LoadBalancerCollector.
 func NewLoadBalancerCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *LoadBalancerCollector {
 	return &LoadBalancerCollector{
 		logger:  logger,
@@ -40,11 +42,14 @@ func NewLoadBalancerCollector(logger log.Logger, client *godo.Client, timeout ti
 	}
 }
 
+// Describe sends the super-set of all possible descriptors of metrics
+// collected by this Collector.
 func (c *LoadBalancerCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Droplets
 	ch <- c.Status
 }
 
+// Collect is called by the Prometheus registry when collecting metrics.
 func (c *LoadBalancerCollector) Collect(ch chan<- prometheus.Metric) {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
