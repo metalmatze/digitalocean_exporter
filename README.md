@@ -62,10 +62,11 @@ Read-only tokens are sufficient.
 | digitalocean_droplet_price_monthly          | gauge   | 4            | Price of the Droplet billed monthly in dollars
 | digitalocean_droplet_up                     | gauge   | 4            | If 1 the droplet is up and running, 0 otherwise
 | digitalocean_floating_ipv4_active           | gauge   | 1            | If 1 the floating ip used by a droplet, 0 otherwise
-| digitalocean_image_min_disk_size_bytes      | gauge   | 4            | Minimum disk size for a droplet to run this image on in bytes
 | digitalocean_key                            | gauge   | 1            | Information about keys in your digitalocean account
-| digitalocean_snapshot_min_disk_size_bytes   | gauge   | 20           | Minimum disk size for a droplet/volume to run this snapshot on in bytes
-| digitalocean_snapshot_size_bytes            | gauge   | 7            | Snapshot's size in bytes
+| digitalocean_loadbalancer_droplets          | gauge   | 1            | The number of droplets this load balancer is proxying to
+| digitalocean_loadbalancer_status            | gauge   | 1            | The status of the load balancer, 1 if active
+| digitalocean_snapshot_min_disk_size_bytes   | gauge   | 2            | Minimum disk size for a droplet/volume to run this snapshot on in bytes
+| digitalocean_snapshot_size_bytes            | gauge   | 2            | Snapshot's size in bytes
 | digitalocean_start_time                     | gauge   | 1            | Unix timestamp of the start time
 | digitalocean_volume_size_bytes              | gauge   | 11           | Volume's size in bytes
 
