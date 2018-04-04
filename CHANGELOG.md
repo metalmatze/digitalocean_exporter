@@ -1,3 +1,9 @@
+## 0.5 / 2018-04-05
+
+* [BREAKING] Update dependencies and use dep over govendor [9b6c995]
+* [FEATURE] Add a LoadBalancer Collector [4#]
+* [ENHANCEMENT] Convert the example rules to prom v2 yaml [a9de2b8]
+
 ## 0.4 / 2017-04-03
 
 * [FEATURE] Add metrics for `domain_record_port`, `domain_record_priority`, `domain_record_weight`, `domain_ttl_seconds`.
