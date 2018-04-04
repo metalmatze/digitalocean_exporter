@@ -91,6 +91,7 @@ func main() {
 	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client, timeout))
 	prometheus.MustRegister(collector.NewImageCollector(logger, client, timeout))
 	prometheus.MustRegister(collector.NewKeyCollector(logger, client, timeout))
+	prometheus.MustRegister(collector.NewLoadBalancerCollector(logger, client, timeout))
 	prometheus.MustRegister(collector.NewSnapshotCollector(logger, client, timeout))
 	prometheus.MustRegister(collector.NewVolumeCollector(logger, client, timeout))
 
