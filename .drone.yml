@@ -27,12 +27,14 @@ pipeline:
   docker:
     image: plugins/docker
     repo: metalmatze/digitalocean_exporter
-    tags: [ '${DRONE_TAG}' ]
+    secrets: [ docker_username, docker_password ]
+    tag: [ 0.5 ]
     when:
       event: tag
 
   github:
     image: plugins/github-release
+    secrets: [ github_token ]
     files: dist/*
     when:
       event: tag
