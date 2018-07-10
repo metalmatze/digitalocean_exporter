@@ -1,0 +1,7 @@
+{
+  prometheusServiceMonitor+:: {
+    digitalOcean+: {
+
+    },
+  },
+}
