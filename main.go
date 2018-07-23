@@ -84,18 +84,31 @@ func main() {
 
 	timeout := time.Duration(c.HTTPTimeout) * time.Millisecond
 
-	prometheus.MustRegister(collector.NewAccountCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewDomainCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewDropletCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
-	prometheus.MustRegister(collector.NewFloatingIPCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewImageCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewKeyCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewLoadBalancerCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewSnapshotCollector(logger, client, timeout))
-	prometheus.MustRegister(collector.NewVolumeCollector(logger, client, timeout))
+	errors := prometheus.NewCounterVec(prometheus.CounterOpts{
+		Name: "digitalocean_errors_total",
+		Help: "The total number of errors per collector",
+	}, []string{"collector"})
 
-	http.Handle(c.WebPath, promhttp.Handler())
+	r := prometheus.NewRegistry()
+	r.MustRegister(prometheus.NewProcessCollector(os.Getpid(), ""))
+	r.MustRegister(prometheus.NewGoCollector())
+	r.MustRegister(errors)
+	r.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
+
+	r.MustRegister(collector.NewAccountCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewDomainCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewDropletCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewFloatingIPCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewImageCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewKeyCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewLoadBalancerCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewSnapshotCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewVolumeCollector(logger, errors, client, timeout))
+
+	http.Handle(c.WebPath,
+		promhttp.HandlerFor(r, promhttp.HandlerOpts{}),
+	)
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`<html>
 			<head><title>DigitalOcean Exporter</title></head>

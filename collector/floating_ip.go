@@ -14,6 +14,7 @@ import (
 // FloatingIPCollector collects metrics about all floating ips.
 type FloatingIPCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -21,11 +22,13 @@ type FloatingIPCollector struct {
 }
 
 // NewFloatingIPCollector returns a new FloatingIPCollector.
-func NewFloatingIPCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *FloatingIPCollector {
-	labels := []string{"droplet_id", "droplet_name", "region", "ipv4"}
+func NewFloatingIPCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *FloatingIPCollector {
+	errors.WithLabelValues("floating_ip").Add(0)
 
+	labels := []string{"droplet_id", "droplet_name", "region", "ipv4"}
 	return &FloatingIPCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -49,6 +52,7 @@ func (c *FloatingIPCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	floatingIPs, _, err := c.client.FloatingIPs.List(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("floating_ip").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't list floating ips",
 			"err", err,

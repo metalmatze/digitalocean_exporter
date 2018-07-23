@@ -14,6 +14,7 @@ import (
 // DropletCollector collects metrics about all droplets.
 type DropletCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -26,11 +27,13 @@ type DropletCollector struct {
 }
 
 // NewDropletCollector returns a new DropletCollector.
-func NewDropletCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *DropletCollector {
-	labels := []string{"id", "name", "region"}
+func NewDropletCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *DropletCollector {
+	errors.WithLabelValues("droplet").Add(0)
 
+	labels := []string{"id", "name", "region"}
 	return &DropletCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -84,6 +87,7 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	droplets, _, err := c.client.Droplets.List(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("droplet").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't list droplets",
 			"err", err,

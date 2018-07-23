@@ -13,6 +13,7 @@ import (
 // SnapshotCollector collects metrics about all snapshots of droplets & volumes.
 type SnapshotCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -21,10 +22,13 @@ type SnapshotCollector struct {
 }
 
 // NewSnapshotCollector returns a new SnapshotCollector.
-func NewSnapshotCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *SnapshotCollector {
+func NewSnapshotCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *SnapshotCollector {
+	errors.WithLabelValues("snapshot").Add(0)
+
 	labels := []string{"id", "name", "region", "type"}
 	return &SnapshotCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -53,6 +57,7 @@ func (c *SnapshotCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	snapshots, _, err := c.client.Snapshots.List(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("snapshot").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't list snapshots",
 			"err", err,

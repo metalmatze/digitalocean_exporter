@@ -14,6 +14,7 @@ import (
 // KeyCollector collects metrics about ssh keys added to the account.
 type KeyCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -21,9 +22,12 @@ type KeyCollector struct {
 }
 
 // NewKeyCollector returns a new KeyCollector.
-func NewKeyCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *KeyCollector {
+func NewKeyCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *KeyCollector {
+	errors.WithLabelValues("key").Add(0)
+
 	return &KeyCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -48,6 +52,7 @@ func (c *KeyCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	keys, _, err := c.client.Keys.List(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("key").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't list keys",
 			"err", err,

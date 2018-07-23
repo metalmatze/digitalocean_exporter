@@ -13,6 +13,7 @@ import (
 // VolumeCollector collects metrics about all volumes.
 type VolumeCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -20,10 +21,13 @@ type VolumeCollector struct {
 }
 
 // NewVolumeCollector returns a new VolumeCollector.
-func NewVolumeCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *VolumeCollector {
+func NewVolumeCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *VolumeCollector {
+	errors.WithLabelValues("volume").Add(0)
+
 	labels := []string{"id", "name", "region"}
 	return &VolumeCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -47,6 +51,7 @@ func (c *VolumeCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	volumes, _, err := c.client.Storage.ListVolumes(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("volume").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't list volumes",
 			"err", err,
