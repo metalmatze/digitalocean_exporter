@@ -14,6 +14,7 @@ import (
 // DomainCollector collects metrics about all images created by the user.
 type DomainCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -24,11 +25,13 @@ type DomainCollector struct {
 }
 
 // NewDomainCollector returns a new DomainCollector.
-func NewDomainCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *DomainCollector {
-	recordLabels := []string{"id", "name", "type", "data"}
+func NewDomainCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *DomainCollector {
+	errors.WithLabelValues("domain").Add(0)
 
+	recordLabels := []string{"id", "name", "type", "data"}
 	return &DomainCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -71,6 +74,7 @@ func (c *DomainCollector) Collect(ch chan<- prometheus.Metric) {
 
 	domains, _, err := c.client.Domains.List(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("domain").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't list domains",
 			"err", err,

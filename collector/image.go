@@ -14,6 +14,7 @@ import (
 // ImageCollector collects metrics about all images created by the user.
 type ImageCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -21,10 +22,13 @@ type ImageCollector struct {
 }
 
 // NewImageCollector returns a new ImageCollector.
-func NewImageCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *ImageCollector {
+func NewImageCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *ImageCollector {
+	errors.WithLabelValues("image").Add(0)
+
 	labels := []string{"id", "name", "region", "type", "distribution"}
 	return &ImageCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -48,8 +52,9 @@ func (c *ImageCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	images, _, err := c.client.Images.ListUser(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("image").Add(1)
 		level.Warn(c.logger).Log(
-			"msg", "can't list volumes",
+			"msg", "can't list images",
 			"err", err,
 		)
 		return

@@ -13,6 +13,7 @@ import (
 // AccountCollector collects metrics about the account.
 type AccountCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -23,9 +24,12 @@ type AccountCollector struct {
 }
 
 // NewAccountCollector returns a new AccountCollector.
-func NewAccountCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *AccountCollector {
+func NewAccountCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *AccountCollector {
+	errors.WithLabelValues("account").Add(0)
+
 	return &AccountCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -67,6 +71,7 @@ func (c *AccountCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 	acc, _, err := c.client.Account.Get(ctx)
 	if err != nil {
+		c.errors.WithLabelValues("account").Add(1)
 		level.Warn(c.logger).Log(
 			"msg", "can't get account",
 			"err", err,

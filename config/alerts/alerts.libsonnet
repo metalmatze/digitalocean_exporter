@@ -52,10 +52,36 @@
               severity: 'warning',
             },
             annotations: {
-              message: 'We can\'t find SSH keys, please add at least one.',
+              message: "We can't find SSH keys, please add at least one.",
             },
             'for': '1h',
             alert: 'DigitalOceanNoSSHKeys',
+          },
+          {
+            expr: |||
+              max by (collector) (increase(digitalocean_errors_total[1h])) > 5
+            ||| % $._config,
+            labels: {
+              severity: 'warning',
+            },
+            annotations: {
+              message: 'Collector for {{ $labels.collector }} failed more than 5 times within the last hour.',
+            },
+            'for': '15m',
+            alert: 'DigitalOceanCollectorErrors',
+          },
+          {
+            expr: |||
+              digitalocean_loadbalancer_status != 1
+            ||| % $._config,
+            labels: {
+              severity: 'critical',
+            },
+            annotations: {
+              message: 'DigitalOcean LoadBalancer {{ $labels.name }} is not active for 15min.',
+            },
+            'for': '5m',
+            alert: 'DigitalOceanLoadBalancerNotActive',
           },
         ],
       },

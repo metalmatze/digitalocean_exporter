@@ -13,6 +13,7 @@ import (
 // LoadBalancerCollector collects metrics about LoadBalancers of that account.
 type LoadBalancerCollector struct {
 	logger  log.Logger
+	errors  *prometheus.CounterVec
 	client  *godo.Client
 	timeout time.Duration
 
@@ -21,9 +22,12 @@ type LoadBalancerCollector struct {
 }
 
 // NewLoadBalancerCollector returns a new LoadBalancerCollector.
-func NewLoadBalancerCollector(logger log.Logger, client *godo.Client, timeout time.Duration) *LoadBalancerCollector {
+func NewLoadBalancerCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *LoadBalancerCollector {
+	errors.WithLabelValues("loadbalancer").Add(0)
+
 	return &LoadBalancerCollector{
 		logger:  logger,
+		errors:  errors,
 		client:  client,
 		timeout: timeout,
 
@@ -56,8 +60,9 @@ func (c *LoadBalancerCollector) Collect(ch chan<- prometheus.Metric) {
 
 	lbs, _, err := c.client.LoadBalancers.List(ctx, nil)
 	if err != nil {
+		c.errors.WithLabelValues("loadbalancer").Add(1)
 		level.Warn(c.logger).Log(
-			"msg", "can't list keys",
+			"msg", "can't list loadbalancers",
 			"err", err,
 		)
 	}
