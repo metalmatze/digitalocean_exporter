@@ -35,7 +35,7 @@ local k = import 'ksonnet/ksonnet.beta.3/k.libsonnet';
         endpoints: [
           {
             port: 'http',
-            interval: '5m',
+            interval: '10m',
           },
         ],
       },
