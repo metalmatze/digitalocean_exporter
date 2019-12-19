@@ -2,7 +2,6 @@ package collector
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/digitalocean/godo"
@@ -109,11 +108,9 @@ func (c *KubernetesCollector) Collect(ch chan<- prometheus.Metric) {
 			float64(len(cluster.NodePools)),
 			labels...,
 		)
-		var wg sync.WaitGroup
+
 		for _, nodepool := range cluster.NodePools {
-			wg.Add(1)
 			go func(np *godo.KubernetesNodePool) {
-				defer wg.Done()
 				labels := []string{
 					np.ID,
 					np.Name,
@@ -127,6 +124,5 @@ func (c *KubernetesCollector) Collect(ch chan<- prometheus.Metric) {
 				)
 			}(nodepool)
 		}
-		wg.Wait()
 	}
 }
