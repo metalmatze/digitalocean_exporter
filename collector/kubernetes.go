@@ -27,7 +27,8 @@ type KubernetesCollector struct {
 func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *KubernetesCollector {
 	errors.WithLabelValues("kubernetes").Add(0)
 
-	labels := []string{"id", "name", "region"}
+	clusterLabels := []string{"id", "name", "region", "version"}
+	nodeLabels := []string{"id", "name", "region"}
 	return &KubernetesCollector{
 		logger:  logger,
 		errors:  errors,
@@ -42,17 +43,17 @@ func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 		Up: prometheus.NewDesc(
 			"digitalocean_kubernetes_cluster_up",
 			"If 1 the kubernetes cluster is up and running, 0 otherwise",
-			labels, nil,
+			clusterLabels, nil,
 		),
 		NodePools: prometheus.NewDesc(
 			"digitalocean_kubernetes_nodepools_count",
 			"Number of Kubernetes nodepools",
-			labels, nil,
+			nodeLabels, nil,
 		),
 		Nodes: prometheus.NewDesc(
 			"digitalocean_kubernetes_nodes_count",
 			"Number of Kubernetes nodes",
-			labels, nil,
+			nodeLabels, nil,
 		),
 	}
 }
@@ -89,6 +90,7 @@ func (c *KubernetesCollector) Collect(ch chan<- prometheus.Metric) {
 			cluster.ID,
 			cluster.Name,
 			cluster.RegionSlug,
+			cluster.VersionSlug,
 		}
 
 		var active float64
