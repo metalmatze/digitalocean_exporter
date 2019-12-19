@@ -110,11 +110,13 @@ func (c *KubernetesCollector) Collect(ch chan<- prometheus.Metric) {
 		)
 
 		for _, nodepool := range cluster.NodePools {
-			go func(np *godo.KubernetesNodePool) {
+			// Assume NodePools are constrained to the cluster's Region
+			// If so, we can labels a cluster's NodePools by the cluster's region
+			go func(region string, np *godo.KubernetesNodePool) {
 				labels := []string{
 					np.ID,
 					np.Name,
-					"",
+					region,
 				}
 				ch <- prometheus.MustNewConstMetric(
 					c.Nodes,
@@ -122,7 +124,7 @@ func (c *KubernetesCollector) Collect(ch chan<- prometheus.Metric) {
 					float64(np.Count),
 					labels...,
 				)
-			}(nodepool)
+			}(cluster.RegionSlug, nodepool)
 		}
 	}
 }
