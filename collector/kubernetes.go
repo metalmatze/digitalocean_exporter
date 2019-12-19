@@ -27,6 +27,7 @@ type KubernetesCollector struct {
 func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, timeout time.Duration) *KubernetesCollector {
 	errors.WithLabelValues("kubernetes").Add(0)
 
+	// Version refers to the upstream Kubernetes version as well as the DigitalOcean revision
 	clusterLabels := []string{"id", "name", "region", "version"}
 	nodeLabels := []string{"id", "name", "region"}
 	return &KubernetesCollector{
@@ -48,7 +49,7 @@ func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 		NodePools: prometheus.NewDesc(
 			"digitalocean_kubernetes_nodepools_count",
 			"Number of Kubernetes nodepools",
-			nodeLabels, nil,
+			clusterLabels, nil,
 		),
 		Nodes: prometheus.NewDesc(
 			"digitalocean_kubernetes_nodes_count",
