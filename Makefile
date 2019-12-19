@@ -8,7 +8,7 @@ LDFLAGS += -X main.Revision=$(DRONE_COMMIT)
 LDFLAGS += -X "main.BuildDate=$(DATE)"
 LDFLAGS += -extldflags '-static'
 
-PACKAGES = $(shell go list ./... | grep -v /vendor/)
+PACKAGES = $(shell go list ./...)
 
 .PHONY: all
 all: build
