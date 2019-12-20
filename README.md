@@ -1,4 +1,4 @@
-# DigitalOcean Exporter [![Build Status](https://drone.github.matthiasloibl.com/api/badges/metalmatze/digitalocean_exporter/status.svg)](https://drone.github.matthiasloibl.com/metalmatze/digitalocean_exporter)
+# DigitalOcean Exporter [![Build Status](https://cloud.drone.io/api/badges/metalmatze/digitalocean_exporter/status.svg)](https://cloud.drone.io/metalmatze/digitalocean_exporter)
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/metalmatze/digitalocean_exporter.svg?maxAge=604800)](https://hub.docker.com/r/metalmatze/digitalocean_exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/metalmatze/digitalocean_exporter)](https://goreportcard.com/report/github.com/metalmatze/digitalocean_exporter)

@@ -8,7 +8,7 @@ LDFLAGS += -X main.Revision=$(DRONE_COMMIT)
 LDFLAGS += -X "main.BuildDate=$(DATE)"
 LDFLAGS += -extldflags '-static'
 
-PACKAGES = $(shell go list ./... | grep -v /vendor/)
+PACKAGES = $(shell go list ./...)
 
 .PHONY: all
 all: build
@@ -29,13 +29,13 @@ vet:
 .PHONY: lint
 lint:
 	@which golint > /dev/null; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/golang/lint/golint; \
+		$(GO) get -u golang.org/x/lint/golint; \
 	fi
 	for PKG in $(PACKAGES); do golint -set_exit_status $$PKG || exit 1; done;
 
 .PHONY: test
 test:
-	@for PKG in $(PACKAGES); do go test -cover -coverprofile $$GOPATH/src/$$PKG/coverage.out $$PKG || exit 1; done;
+	@for PKG in $(PACKAGES); do $(GO) test -cover $$PKG || exit 1; done;
 
 $(EXECUTABLE): $(wildcard *.go)
 	$(GO) build -v -ldflags '-w $(LDFLAGS)'
