@@ -42,7 +42,7 @@ func NewExporterCollector(logger log.Logger, version string, revision string, bu
 		BuildInfo: prometheus.NewDesc(
 			"digitalocean_build_info",
 			"A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built.",
-			[]string{"verison", "revision", "builddate", "goversion"}, nil,
+			[]string{"version", "revision", "builddate", "goversion"}, nil,
 		),
 	}
 }
