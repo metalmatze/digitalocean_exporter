@@ -90,7 +90,7 @@ func main() {
 	}, []string{"collector"})
 
 	r := prometheus.NewRegistry()
-	r.MustRegister(prometheus.NewProcessCollector(os.Getpid(), ""))
+	r.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
 	r.MustRegister(prometheus.NewGoCollector())
 	r.MustRegister(errors)
 	r.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
