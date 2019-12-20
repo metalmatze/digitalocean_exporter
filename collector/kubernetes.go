@@ -57,6 +57,7 @@ func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 func (c *KubernetesCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.Up
 	ch <- c.NodePools
+	ch <- c.Nodes
 }
 
 // Collect is called by the Prometheus registry when collecting metrics
