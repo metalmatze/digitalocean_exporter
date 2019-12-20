@@ -29,13 +29,13 @@ vet:
 .PHONY: lint
 lint:
 	@which golint > /dev/null; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/golang/lint/golint; \
+		$(GO) get -u golang.org/x/lint/golint; \
 	fi
 	for PKG in $(PACKAGES); do golint -set_exit_status $$PKG || exit 1; done;
 
 .PHONY: test
 test:
-	@for PKG in $(PACKAGES); do go test -cover $$PKG || exit 1; done;
+	@for PKG in $(PACKAGES); do $(GO) test -cover $$PKG || exit 1; done;
 
 $(EXECUTABLE): $(wildcard *.go)
 	$(GO) build -v -ldflags '-w $(LDFLAGS)'
