@@ -1,40 +1,58 @@
+---
+kind: pipeline
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
 workspace:
   base: /go
   path: src/github.com/metalmatze/digitalocean_exporter
 
-pipeline:
-  build:
-    image: golang:alpine
-    pull: true
-    commands:
-      - apk add -U git make
-      - make fmt
-      - make vet
-      - make lint
-      - make test
-      - make build
-    when:
-      event: [ push, tag, pull_request ]
+steps:
+- name: build
+  pull: always
+  image: golang:alpine
+  commands:
+  - apk add -U git make
+  - make fmt
+  - make vet
+  - make lint
+  - make test
+  - make build
 
-  release:
-    image: golang:alpine
-    commands:
-      - apk add -U git make
-      - make release
-    when:
-      event: tag
+- name: release
+  image: golang:alpine
+  commands:
+  - apk add -U git make
+  - make release
+  when:
+    event:
+    - tag
 
-  docker:
-    image: plugins/docker
+- name: docker
+  image: plugins/docker
+  settings:
     repo: metalmatze/digitalocean_exporter
-    secrets: [ docker_username, docker_password ]
-    tag: [ 0.5 ]
-    when:
-      event: tag
+    tag: [ '0.5' ]
+  environment:
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+    DOCKER_USERNAME:
+      from_secret: docker_username
+  when:
+    event:
+    - tag
 
-  github:
-    image: plugins/github-release
-    secrets: [ github_token ]
+- name: github
+  image: plugins/github-release
+  settings:
     files: dist/*
-    when:
-      event: tag
+  environment:
+    GITHUB_TOKEN:
+      from_secret: github_token
+  when:
+    event:
+    - tag
+
