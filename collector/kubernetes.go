@@ -18,7 +18,6 @@ type KubernetesCollector struct {
 	timeout time.Duration
 
 	Up        *prometheus.Desc
-	Count     *prometheus.Desc
 	NodePools *prometheus.Desc
 	Nodes     *prometheus.Desc
 }
@@ -36,11 +35,6 @@ func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 		client:  client,
 		timeout: timeout,
 
-		Count: prometheus.NewDesc(
-			"digitalocean_kubernetes_cluster_count",
-			"Number of Kubernetes clusters",
-			nil, nil,
-		),
 		Up: prometheus.NewDesc(
 			"digitalocean_kubernetes_cluster_up",
 			"If 1 the kubernetes cluster is up and running, 0 otherwise",
@@ -61,7 +55,6 @@ func NewKubernetesCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 
 // Describe secnds the super-set of all possible descriptors of metrics collected by this Collector.
 func (c *KubernetesCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.Count
 	ch <- c.Up
 	ch <- c.NodePools
 }
@@ -78,13 +71,6 @@ func (c *KubernetesCollector) Collect(ch chan<- prometheus.Metric) {
 			"err", err,
 		)
 	}
-
-	ch <- prometheus.MustNewConstMetric(
-		c.Count,
-		prometheus.GaugeValue,
-		float64(len(clusters)),
-		[]string{}...,
-	)
 
 	for _, cluster := range clusters {
 		labels := []string{
