@@ -8,7 +8,5 @@ require (
 	github.com/go-kit/kit v0.9.0
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.2.1
-	github.com/tidwall/gjson v1.6.0
-	github.com/tidwall/pretty v1.0.1 // indirect
 	golang.org/x/oauth2 v0.0.0-20191202225959-858c2ad4c8b6
 )
