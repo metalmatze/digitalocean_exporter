@@ -35,7 +35,7 @@ ENV Variable | Description
 |----------|-----|
 | DEBUG | If set to true also debug information will be logged, otherwise only info |
 | DIGITALOCEAN_TOKEN | Token for API access |
-| HTTP_TIMEOUT | Timeout for the godo client, default: `5000`ms | 
+| HTTP_TIMEOUT | Timeout for the godo client, default: `5000`ms |
 | WEB_ADDR | Address for this exporter to run, default: `:9212` |
 | WEB_PATH | Path for metrics, default: `/metrics` |
 
@@ -62,6 +62,8 @@ Read-only tokens are sufficient.
 | digitalocean_droplet_price_monthly          | gauge   | 4            | Price of the Droplet billed monthly in dollars
 | digitalocean_droplet_up                     | gauge   | 4            | If 1 the droplet is up and running, 0 otherwise
 | digitalocean_floating_ipv4_active           | gauge   | 1            | If 1 the floating ip used by a droplet, 0 otherwise
+| digitalocean_incidents                      | gauge   | 1            | Number of active regional incidents associated with digitalocean services
+| digitalocean_incidents_total                | gauge   | 0            | Number of active total incidents associated with digitalocean services
 | digitalocean_key                            | gauge   | 1            | Information about keys in your digitalocean account
 | digitalocean_loadbalancer_droplets          | gauge   | 1            | The number of droplets this load balancer is proxying to
 | digitalocean_loadbalancer_status            | gauge   | 1            | The status of the load balancer, 1 if active
