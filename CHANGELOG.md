@@ -1,3 +1,8 @@
+## 0.6.0 / 2020-08-06
+
+* [FEATURE] Add Kubernetes Collector [#5]
+* [FEATURE] Add Incidents Collector - exposes Gauge about number of ongoing incidents [#9]
+
 ## 0.5 / 2018-04-05
 
 * [BREAKING] Update dependencies and use dep over govendor [9b6c995]
