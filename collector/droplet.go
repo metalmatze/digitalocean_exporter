@@ -87,15 +87,15 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 	defer cancel()
 
 	// create a list to hold our droplets
-	list := []godo.Droplet{}
+	droplets := []godo.Droplet{}
 
 	// create options. initially, these will be blank
 	opt := &godo.ListOptions{}
 
 	for {
-		droplets, resp, err := c.client.Droplets.List(ctx, opt)
-
+		dropletsPage, resp, err := c.client.Droplets.List(ctx, opt)
 		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
 			level.Warn(c.logger).Log(
 				"msg", "can't list droplets",
 				"err", err,
@@ -103,8 +103,8 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 		// append the current page's droplets to our list
-		for _, d := range droplets {
-			list = append(list, d)
+		for _, d := range dropletsPage {
+			droplets = append(droplets, d)
 		}
 
 		// if we are at the last page, break out the for loop
@@ -114,6 +114,7 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 
 		page, err := resp.Links.CurrentPage()
 		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
 			level.Warn(c.logger).Log(
 				"msg", "can't read current page",
 				"err", err,
@@ -123,7 +124,7 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 		opt.Page = page + 1
 	}
 
-	for _, droplet := range list {
+	for _, droplet := range droplets {
 		labels := []string{
 			fmt.Sprintf("%d", droplet.ID),
 			droplet.Name,
