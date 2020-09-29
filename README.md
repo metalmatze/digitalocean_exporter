@@ -13,15 +13,15 @@ https://github.com/metalmatze/digitalocean_exporter/releases
 #### Docker
 
 ```bash
-docker pull metalmatze/digitalocean_exporter:0.6.0
-docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.6.0
+docker pull metalmatze/digitalocean_exporter:0.6.1
+docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.6.1
 ```
 
 Example `docker-compose.yml` with Transmission also running in docker.
 
 ```yaml
 digitalocean_exporter:
-    image: metalmatze/digitalocean_exporter:0.6.0
+    image: metalmatze/digitalocean_exporter:0.6.1
     environment:
     - '-do.token=XXX'
     restart: always

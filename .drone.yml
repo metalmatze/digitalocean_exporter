@@ -35,7 +35,7 @@ steps:
   image: plugins/docker
   settings:
     repo: metalmatze/digitalocean_exporter
-    tag: [ '0.6.0', '0.6' ]
+    tag: [ '0.6.1', '0.6' ]
   environment:
     DOCKER_PASSWORD:
       from_secret: docker_password

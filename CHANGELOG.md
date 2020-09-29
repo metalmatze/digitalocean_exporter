@@ -1,3 +1,7 @@
+## 0.6.1 / 2020-09-29
+
+* [ENHANCEMENT] Iterate through droplet pages [#12]
+
 ## 0.6.0 / 2020-08-06
 
 * [FEATURE] Add Kubernetes Collector [#5]
