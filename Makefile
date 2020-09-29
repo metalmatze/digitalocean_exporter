@@ -52,4 +52,4 @@ release:
 	@which gox > /dev/null; if [ $$? -ne 0 ]; then \
 		$(GO) get -u github.com/mitchellh/gox; \
 	fi
-	CGO_ENABLED=0 gox -verbose -ldflags '-w $(LDFLAGS)' -output="dist/$(EXECUTABLE)-${DRONE_TAG}-{{.OS}}-{{.Arch}}"
+	CGO_ENABLED=0 gox -verbose -ldflags '-w $(LDFLAGS)' -osarch '!darwin/386' -output="dist/$(EXECUTABLE)-${DRONE_TAG}-{{.OS}}-{{.Arch}}"
