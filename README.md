@@ -51,6 +51,8 @@ Read-only tokens are sufficient.
 | digitalocean_account_floating_ip_limit      | gauge   | 1            | The maximum number of floating ips you can use
 | digitalocean_account_verified               | gauge   | 1            | 1 if your email address was verified
 | digitalocean_build_info                     | gauge   | 1            | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built.
+| digitalocean_database_status                | gauge   | 9            | The status of the database, 1 if online, 0 otherwise
+| digitalocean_database_nodes                 | gauge   | 9            | The number of nodes in a database cluster
 | digitalocean_domain_record_port             | gauge   | 7            | The port for SRV records
 | digitalocean_domain_record_priority         | gauge   | 7            | The priority for SRV and MX records
 | digitalocean_domain_record_weight           | gauge   | 7            | The weight for SRV records
