@@ -1,5 +1,6 @@
-# DigitalOcean Exporter [![Build Status](https://cloud.drone.io/api/badges/metalmatze/digitalocean_exporter/status.svg)](https://cloud.drone.io/metalmatze/digitalocean_exporter)
+# DigitalOcean Exporter [![Deploy to DO](https://mp-assets1.sfo2.digitaloceanspaces.com/deploy-to-do/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/metalmatze/digitalocean_exporter/tree/master)
 
+[![Build Status](https://cloud.drone.io/api/badges/metalmatze/digitalocean_exporter/status.svg)](https://cloud.drone.io/metalmatze/digitalocean_exporter)
 [![Docker Pulls](https://img.shields.io/docker/pulls/metalmatze/digitalocean_exporter.svg?maxAge=604800)](https://hub.docker.com/r/metalmatze/digitalocean_exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/metalmatze/digitalocean_exporter)](https://goreportcard.com/report/github.com/metalmatze/digitalocean_exporter)
 
@@ -50,6 +51,7 @@ Read-only tokens are sufficient.
 | digitalocean_account_droplet_limit          | gauge   | 1            | The maximum number of droplet you can use
 | digitalocean_account_floating_ip_limit      | gauge   | 1            | The maximum number of floating ips you can use
 | digitalocean_account_verified               | gauge   | 1            | 1 if your email address was verified
+| digitalocean_app                            | gauge   | 5            | A metric with a constant '1' value labeled by app id, name, tier, region, and app phase("BUILDING", "DEPLOYING", "ACTIVE", "SUPERSEDED")
 | digitalocean_build_info                     | gauge   | 1            | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built.
 | digitalocean_domain_record_port             | gauge   | 7            | The port for SRV records
 | digitalocean_domain_record_priority         | gauge   | 7            | The priority for SRV and MX records

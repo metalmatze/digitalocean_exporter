@@ -106,6 +106,7 @@ func main() {
 	r.MustRegister(collector.NewVolumeCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewKubernetesCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewIncidentCollector(logger, errors, timeout))
+	r.MustRegister(collector.NewAppCollector(logger, errors, client, timeout))
 
 	http.Handle(c.WebPath,
 		promhttp.HandlerFor(r, promhttp.HandlerOpts{}),
