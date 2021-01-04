@@ -1,6 +1,5 @@
-# DigitalOcean Exporter [![Deploy to DO](https://mp-assets1.sfo2.digitaloceanspaces.com/deploy-to-do/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/metalmatze/digitalocean_exporter/tree/master)
+# DigitalOcean Exporter [![Build Status](https://cloud.drone.io/api/badges/metalmatze/digitalocean_exporter/status.svg)](https://cloud.drone.io/metalmatze/digitalocean_exporter)
 
-[![Build Status](https://cloud.drone.io/api/badges/metalmatze/digitalocean_exporter/status.svg)](https://cloud.drone.io/metalmatze/digitalocean_exporter)
 [![Docker Pulls](https://img.shields.io/docker/pulls/metalmatze/digitalocean_exporter.svg?maxAge=604800)](https://hub.docker.com/r/metalmatze/digitalocean_exporter)
 [![Go Report Card](https://goreportcard.com/badge/github.com/metalmatze/digitalocean_exporter)](https://goreportcard.com/report/github.com/metalmatze/digitalocean_exporter)
 
@@ -10,6 +9,9 @@ Prometheus exporter for various metrics about your [DigitalOcean](https://www.di
 
 For pre-built binaries please take a look at the releases.  
 https://github.com/metalmatze/digitalocean_exporter/releases
+
+To deploy directly onto digitalocean, click the button below.  
+[![Deploy to DO](https://mp-assets1.sfo2.digitaloceanspaces.com/deploy-to-do/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/metalmatze/digitalocean_exporter/tree/master)
 
 #### Docker
 
