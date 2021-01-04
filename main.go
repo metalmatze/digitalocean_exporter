@@ -94,8 +94,10 @@ func main() {
 	r.MustRegister(prometheus.NewGoCollector())
 	r.MustRegister(errors)
 	r.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
-
 	r.MustRegister(collector.NewAccountCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewAppCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewBalanceCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewDBCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewDomainCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewDropletCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewFloatingIPCollector(logger, errors, client, timeout))
@@ -106,7 +108,6 @@ func main() {
 	r.MustRegister(collector.NewVolumeCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewKubernetesCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewIncidentCollector(logger, errors, timeout))
-	r.MustRegister(collector.NewAppCollector(logger, errors, client, timeout))
 
 	http.Handle(c.WebPath,
 		promhttp.HandlerFor(r, promhttp.HandlerOpts{}),
