@@ -47,9 +47,11 @@ Read-only tokens are sufficient.
 |Name                                         |Type     |Cardinality   |Help
 |----                                         |----     |-----------   |----
 | digitalocean_account_active                 | gauge   | 1            | The status of your account
+| digitalocean_account_balance                | gauge   | 1            | Current balance of your most recent billing activity
 | digitalocean_account_droplet_limit          | gauge   | 1            | The maximum number of droplet you can use
 | digitalocean_account_floating_ip_limit      | gauge   | 1            | The maximum number of floating ips you can use
 | digitalocean_account_verified               | gauge   | 1            | 1 if your email address was verified
+| digitalocean_balance_generated_at           | gauge   | 1            | The time at which balances were most recently generated
 | digitalocean_build_info                     | gauge   | 1            | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built.
 | digitalocean_database_status                | gauge   | 9            | The status of the database, 1 if online, 0 otherwise
 | digitalocean_database_nodes                 | gauge   | 9            | The number of nodes in a database cluster
@@ -69,6 +71,8 @@ Read-only tokens are sufficient.
 | digitalocean_key                            | gauge   | 1            | Information about keys in your digitalocean account
 | digitalocean_loadbalancer_droplets          | gauge   | 1            | The number of droplets this load balancer is proxying to
 | digitalocean_loadbalancer_status            | gauge   | 1            | The status of the load balancer, 1 if active
+| digitalocean_month_to_date_balance          | gauge   | 1            | Balance as of the `digitalocean_balance_generated_at` time
+| digitalocean_month_to_date_usage            | gauge   | 1            | Amount used in the current billing period as of the `digitalocean_balance_generated_at` time
 | digitalocean_snapshot_min_disk_size_bytes   | gauge   | 2            | Minimum disk size for a droplet/volume to run this snapshot on in bytes
 | digitalocean_snapshot_size_bytes            | gauge   | 2            | Snapshot's size in bytes
 | digitalocean_start_time                     | gauge   | 1            | Unix timestamp of the start time

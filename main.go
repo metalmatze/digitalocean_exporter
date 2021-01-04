@@ -94,9 +94,9 @@ func main() {
 	r.MustRegister(prometheus.NewGoCollector())
 	r.MustRegister(errors)
 	r.MustRegister(collector.NewExporterCollector(logger, Version, Revision, BuildDate, GoVersion, StartTime))
-
 	r.MustRegister(collector.NewAccountCollector(logger, errors, client, timeout))
-	r.MustRegister(collector.NewDBCollector(logger, errors, client, timeout))
+	r.MustRegister(collector.NewBalanceCollector(logger, errors, client, timeout))
+  r.MustRegister(collector.NewDBCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewDomainCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewDropletCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewFloatingIPCollector(logger, errors, client, timeout))
