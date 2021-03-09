@@ -10,6 +10,9 @@ Prometheus exporter for various metrics about your [DigitalOcean](https://www.di
 For pre-built binaries please take a look at the releases.  
 https://github.com/metalmatze/digitalocean_exporter/releases
 
+To deploy directly onto digitalocean, click the button below.  
+[![Deploy to DO](https://mp-assets1.sfo2.digitaloceanspaces.com/deploy-to-do/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/metalmatze/digitalocean_exporter/tree/master)
+
 #### Docker
 
 ```bash
@@ -51,6 +54,7 @@ Read-only tokens are sufficient.
 | digitalocean_account_droplet_limit          | gauge   | 1            | The maximum number of droplet you can use
 | digitalocean_account_floating_ip_limit      | gauge   | 1            | The maximum number of floating ips you can use
 | digitalocean_account_verified               | gauge   | 1            | 1 if your email address was verified
+| digitalocean_app                            | gauge   | 5            | A metric with a constant '1' value labeled by app id, name, tier, region, and app phase("BUILDING", "DEPLOYING", "ACTIVE", "SUPERSEDED")
 | digitalocean_balance_generated_at           | gauge   | 1            | The time at which balances were most recently generated
 | digitalocean_build_info                     | gauge   | 1            | A metric with a constant '1' value labeled by version, revision, and branch from which the node_exporter was built.
 | digitalocean_database_status                | gauge   | 9            | The status of the database, 1 if online, 0 otherwise

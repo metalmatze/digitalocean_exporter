@@ -1,0 +1,15 @@
+---
+spec:
+  name: digitalocean-exporter
+  services:
+    - name: digitalocean-exporter
+      github:
+        repo: metalmatze/digitalocean_exporter
+        branch: master
+      http_port: 9212
+      health_check:
+        http_path: /
+      envs:
+        - key: DIGITALOCEAN_TOKEN
+          value: CHANGE_ME
+          type: SECRET
