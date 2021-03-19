@@ -8,6 +8,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/joho/godotenv v1.3.0
 	github.com/prometheus/client_golang v1.9.0
+	github.com/prometheus/procfs v0.2.0 // indirect
 	golang.org/x/net v0.0.0-20201216054612-986b41b23924 // indirect
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	golang.org/x/sys v0.0.0-20201221093633-bc327ba9c2f0 // indirect
