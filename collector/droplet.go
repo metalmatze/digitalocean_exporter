@@ -100,6 +100,7 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 				"msg", "can't list droplets",
 				"err", err,
 			)
+			return
 		}
 
 		// append the current page's droplets to our list
