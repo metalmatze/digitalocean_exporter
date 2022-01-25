@@ -34,13 +34,15 @@ digitalocean_exporter:
 
 ### Configuration
 
-ENV Variable | Description
-|----------|-----|
-| DEBUG | If set to true also debug information will be logged, otherwise only info |
-| DIGITALOCEAN_TOKEN | Token for API access |
-| HTTP_TIMEOUT | Timeout for the godo client, default: `5000`ms |
-| WEB_ADDR | Address for this exporter to run, default: `:9212` |
-| WEB_PATH | Path for metrics, default: `/metrics` |
+| ENV Variable                          | Description                                                               |
+|---------------------------------------|---------------------------------------------------------------------------|
+| DEBUG                                 | If set to true also debug information will be logged, otherwise only info |
+| DIGITALOCEAN_TOKEN                    | Token for API access                                                      |
+| DIGITALOCEAN_SPACES_ACCESS_KEY_ID     | Spaces Access Key ID to list buckets                                      |
+| DIGITALOCEAN_SPACES_ACCESS_KEY_SECRET | Spaces Access Key Secret to list buckets                                  |
+| HTTP_TIMEOUT                          | Timeout for the godo client, default: `5000`ms                            |
+| WEB_ADDR                              | Address for this exporter to run, default: `:9212`                        |
+| WEB_PATH                              | Path for metrics, default: `/metrics`                                     |
 
 You can get an API token at: https://cloud.digitalocean.com/settings/api/tokens  
 Read-only tokens are sufficient.
@@ -79,6 +81,7 @@ Read-only tokens are sufficient.
 | digitalocean_month_to_date_usage            | gauge   | 1            | Amount used in the current billing period as of the `digitalocean_balance_generated_at` time
 | digitalocean_snapshot_min_disk_size_bytes   | gauge   | 2            | Minimum disk size for a droplet/volume to run this snapshot on in bytes
 | digitalocean_snapshot_size_bytes            | gauge   | 2            | Snapshot's size in bytes
+| digitalocean_spaces_bucket                  | gauge   | 3            | Spaces bucket, will always be 1
 | digitalocean_start_time                     | gauge   | 1            | Unix timestamp of the start time
 | digitalocean_volume_size_bytes              | gauge   | 11           | Volume's size in bytes
 
