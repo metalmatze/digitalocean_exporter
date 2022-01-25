@@ -24,7 +24,8 @@ type SpacesCollector struct {
 	timeout         time.Duration
 	accessKeyID     string
 	accessKeySecret string
-	Active          *prometheus.Desc
+	Bucket          *prometheus.Desc
+	BucketCreated   *prometheus.Desc
 }
 
 // Templated since each region has a different endpoint
@@ -34,7 +35,7 @@ const spacesDomain = "%s.digitaloceanspaces.com"
 func NewSpacesCollector(logger log.Logger, errors *prometheus.CounterVec, client *godo.Client, accessKeyID string, accessKeySecret string, timeout time.Duration) *SpacesCollector {
 	errors.WithLabelValues("spaces_bucket").Add(0)
 
-	labels := []string{"creation_date", "region", "name"}
+	labels := []string{"region", "name"}
 	return &SpacesCollector{
 		logger:          logger,
 		errors:          errors,
@@ -42,10 +43,14 @@ func NewSpacesCollector(logger log.Logger, errors *prometheus.CounterVec, client
 		timeout:         timeout,
 		accessKeyID:     accessKeyID,
 		accessKeySecret: accessKeySecret,
-
-		Active: prometheus.NewDesc(
+		Bucket: prometheus.NewDesc(
 			"digitalocean_spaces_bucket",
 			"Spaces bucket and its details. Will always be 1 if exists",
+			labels, nil,
+		),
+		BucketCreated: prometheus.NewDesc(
+			"digitalocean_spaces_bucket_created",
+			"Spaces bucket's creation date in unix epoch format",
 			labels, nil,
 		),
 	}
@@ -54,7 +59,7 @@ func NewSpacesCollector(logger log.Logger, errors *prometheus.CounterVec, client
 // Describe sends the super-set of all possible descriptors of metrics
 // collected by this Collector.
 func (c *SpacesCollector) Describe(ch chan<- *prometheus.Desc) {
-	ch <- c.Active
+	ch <- c.Bucket
 }
 
 // Collect is called by the Prometheus registry when collecting metrics.
@@ -114,15 +119,21 @@ func (c *SpacesCollector) Collect(ch chan<- prometheus.Metric) {
 
 			for _, bucket := range buckets {
 				labels := []string{
-					bucket.CreationDate.Format(time.RFC3339),
 					region.Slug,
 					bucket.Name,
 				}
 
 				ch <- prometheus.MustNewConstMetric(
-					c.Active,
+					c.Bucket,
 					prometheus.GaugeValue,
 					1.0,
+					labels...,
+				)
+
+				ch <- prometheus.MustNewConstMetric(
+					c.BucketCreated,
+					prometheus.CounterValue,
+					float64(bucket.CreationDate.Unix()),
 					labels...,
 				)
 			}
