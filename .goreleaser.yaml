@@ -1,0 +1,27 @@
+# Visit https://goreleaser.com for documentation on how to customize this
+# behavior.
+before:
+  hooks:
+    - go mod tidy
+builds:
+- env:
+    # goreleaser does not work with CGO, it could also complicate
+    # usage by users in CI/CD systems like Terraform Cloud where
+    # they are unable to install libraries.
+    - CGO_ENABLED=0
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  flags:
+    - -trimpath
+  ldflags:
+    - '-s -w -X main.Version={{.Version}} -X main.Commit={{.Commit}}'
+  goos:
+    - linux
+  goarch:
+    - amd64
+  binary: '{{ .ProjectName }}_v{{ .Version }}'
+archives:
+  - format: binary
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+changelog:
+  skip: false
+  sort: asc

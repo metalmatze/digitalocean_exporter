@@ -16,15 +16,14 @@ To deploy directly onto digitalocean, click the button below.
 #### Docker
 
 ```bash
-docker pull metalmatze/digitalocean_exporter:0.6.1
-docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter:0.6.1
+docker run --rm -p 9212:9212 -e DIGITALOCEAN_TOKEN=XXX metalmatze/digitalocean_exporter
 ```
 
 Example `docker-compose.yml` with Transmission also running in docker.
 
 ```yaml
 digitalocean_exporter:
-    image: metalmatze/digitalocean_exporter:0.6.1
+    image: metalmatze/digitalocean_exporter
     environment:
     - '-do.token=XXX'
     restart: always
