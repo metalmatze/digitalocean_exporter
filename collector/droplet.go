@@ -24,6 +24,7 @@ type DropletCollector struct {
 	Disk         *prometheus.Desc
 	PriceHourly  *prometheus.Desc
 	PriceMonthly *prometheus.Desc
+	CPUMetrics   *prometheus.Desc
 }
 
 // NewDropletCollector returns a new DropletCollector.
@@ -66,6 +67,11 @@ func NewDropletCollector(logger log.Logger, errors *prometheus.CounterVec, clien
 			"digitalocean_droplet_price_monthly",
 			"Price of the Droplet billed monthly in dollars",
 			labels, nil,
+		),
+		CPUMetrics: prometheus.NewDesc(
+			"digitalocean_droplet_cpu_metrics",
+			"Droplet's CPU metrics in seconds",
+			append(labels, "mode"), nil,
 		),
 	}
 }
@@ -172,5 +178,32 @@ func (c *DropletCollector) Collect(ch chan<- prometheus.Metric) {
 			float64(droplet.Size.PriceMonthly),
 			labels...,
 		)
+
+		metricsReq := &godo.DropletMetricsRequest{
+			HostID: fmt.Sprintf("%d", droplet.ID),
+			Start:  time.Now().Add(-5 * time.Minute),
+			End:    time.Now(),
+		}
+
+		metricsResp, _, err := c.client.Monitoring.GetDropletCPU(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet CPU metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range metricsResp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			mode := fmt.Sprintf("%s", metric.Metric["mode"])
+			CPULabels := append(labels, mode)
+			ch <- prometheus.MustNewConstMetric(
+				c.CPUMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				CPULabels...,
+			)
+		}
 	}
 }
