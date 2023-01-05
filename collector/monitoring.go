@@ -18,7 +18,11 @@ type MonitoringCollector struct {
 	client  *godo.Client
 	timeout time.Duration
 
-	CPUMetrics *prometheus.Desc
+	CPUMetrics             *prometheus.Desc
+	MemoryTotalMetrics     *prometheus.Desc
+	MemoryFreeMetrics      *prometheus.Desc
+	MemoryAvailableMetrics *prometheus.Desc
+	MemoryCachedMetrics    *prometheus.Desc
 }
 
 // NewMonitoringCollector returns a new DropletCollector.
@@ -37,6 +41,26 @@ func NewMonitoringCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 			"Droplet's CPU metrics in seconds",
 			append(labels, "mode"), nil,
 		),
+		MemoryTotalMetrics: prometheus.NewDesc(
+			"digitalocean_monitoring_memory_total",
+			"Droplet's total memory metrics in bytes",
+			labels, nil,
+		),
+		MemoryFreeMetrics: prometheus.NewDesc(
+			"digitalocean_monitoring_memory_free",
+			"Droplet's free memory metrics in bytes",
+			labels, nil,
+		),
+		MemoryAvailableMetrics: prometheus.NewDesc(
+			"digitalocean_monitoring_memory_available",
+			"Droplet's available memory metrics in bytes",
+			labels, nil,
+		),
+		MemoryCachedMetrics: prometheus.NewDesc(
+			"digitalocean_monitoring_memory_cached",
+			"Droplet's cached memory metrics in bytes",
+			labels, nil,
+		),
 	}
 }
 
@@ -44,6 +68,10 @@ func NewMonitoringCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 // collected by this Collector.
 func (c *MonitoringCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.CPUMetrics
+	ch <- c.MemoryTotalMetrics
+	ch <- c.MemoryFreeMetrics
+	ch <- c.MemoryAvailableMetrics
+	ch <- c.MemoryCachedMetrics
 }
 
 // Collect is called by the Prometheus registry when collecting metrics.
@@ -121,6 +149,82 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 				prometheus.GaugeValue,
 				float64(lastValue),
 				CPULabels...,
+			)
+		}
+
+		resp, _, err = c.client.Monitoring.GetDropletTotalMemory(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet total memory metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range resp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			ch <- prometheus.MustNewConstMetric(
+				c.MemoryTotalMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				labels...,
+			)
+		}
+
+		resp, _, err = c.client.Monitoring.GetDropletAvailableMemory(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet available memory metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range resp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			ch <- prometheus.MustNewConstMetric(
+				c.MemoryAvailableMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				labels...,
+			)
+		}
+
+		resp, _, err = c.client.Monitoring.GetDropletFreeMemory(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet free memory metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range resp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			ch <- prometheus.MustNewConstMetric(
+				c.MemoryFreeMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				labels...,
+			)
+		}
+
+		resp, _, err = c.client.Monitoring.GetDropletCachedMemory(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet cached memory metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range resp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			ch <- prometheus.MustNewConstMetric(
+				c.MemoryCachedMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				labels...,
 			)
 		}
 	}
