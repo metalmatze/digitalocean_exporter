@@ -116,6 +116,7 @@ func main() {
 	r.MustRegister(collector.NewVolumeCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewKubernetesCollector(logger, errors, client, timeout))
 	r.MustRegister(collector.NewIncidentCollector(logger, errors, timeout))
+	r.MustRegister(collector.NewMonitoringCollector(logger, errors, client, timeout))
 
 	// Only run spaces bucket collector if access key id and secret are set
 	if c.SpacesAccessKeyID != "" && c.SpacesAccessKeySecret != "" {
