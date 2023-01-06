@@ -23,6 +23,8 @@ type MonitoringCollector struct {
 	MemoryFreeMetrics      *prometheus.Desc
 	MemoryAvailableMetrics *prometheus.Desc
 	MemoryCachedMetrics    *prometheus.Desc
+	FileSystemFreeMetrics  *prometheus.Desc
+	FileSystemSizeMetrics  *prometheus.Desc
 }
 
 // NewMonitoringCollector returns a new DropletCollector.
@@ -61,6 +63,16 @@ func NewMonitoringCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 			"Droplet's cached memory metrics in bytes",
 			labels, nil,
 		),
+		FileSystemFreeMetrics: prometheus.NewDesc(
+			"digitalocean_monitoring_filesystem_free",
+			"Droplet's filesystem free metrics in bytes",
+			append(labels, "device", "fstype"), nil,
+		),
+		FileSystemSizeMetrics: prometheus.NewDesc(
+			"digitalocean_monitoring_filesystem_size",
+			"Droplet's filesystem size metrics in bytes",
+			append(labels, "device", "fstype"), nil,
+		),
 	}
 }
 
@@ -72,6 +84,8 @@ func (c *MonitoringCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.MemoryFreeMetrics
 	ch <- c.MemoryAvailableMetrics
 	ch <- c.MemoryCachedMetrics
+	ch <- c.FileSystemFreeMetrics
+	ch <- c.FileSystemSizeMetrics
 }
 
 // Collect is called by the Prometheus registry when collecting metrics.
@@ -225,6 +239,50 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 				prometheus.GaugeValue,
 				float64(lastValue),
 				labels...,
+			)
+		}
+
+		resp, _, err = c.client.Monitoring.GetDropletFilesystemFree(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet filesystem free metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range resp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			device := fmt.Sprintf("%s", metric.Metric["device"])
+			fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
+			fsLabels := append(labels, device, fstype)
+			ch <- prometheus.MustNewConstMetric(
+				c.FileSystemFreeMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				fsLabels...,
+			)
+		}
+
+		resp, _, err = c.client.Monitoring.GetDropletFilesystemSize(ctx, metricsReq)
+		if err != nil {
+			c.errors.WithLabelValues("droplet").Add(1)
+			level.Warn(c.logger).Log(
+				"msg", "can't read current droplet filesystem size metrics",
+				"err", err,
+			)
+		}
+
+		for _, metric := range resp.Data.Result {
+			lastValue := metric.Values[len(metric.Values)-1].Value
+			device := fmt.Sprintf("%s", metric.Metric["device"])
+			fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
+			fsLabels := append(labels, device, fstype)
+			ch <- prometheus.MustNewConstMetric(
+				c.FileSystemSizeMetrics,
+				prometheus.GaugeValue,
+				float64(lastValue),
+				fsLabels...,
 			)
 		}
 	}
