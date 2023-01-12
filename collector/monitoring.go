@@ -67,16 +67,16 @@ func NewMonitoringCollector(logger log.Logger, errors *prometheus.CounterVec, cl
 		FileSystemFreeMetrics: prometheus.NewDesc(
 			"digitalocean_monitoring_filesystem_free",
 			"Droplet's filesystem free metrics in bytes",
-			append(labels, "device", "fstype"), nil,
+			append(labels, "device", "fstype", "mountpoint"), nil,
 		),
 		FileSystemSizeMetrics: prometheus.NewDesc(
 			"digitalocean_monitoring_filesystem_size",
 			"Droplet's filesystem size metrics in bytes",
-			append(labels, "device", "fstype"), nil,
+			append(labels, "device", "fstype", "mountpoint"), nil,
 		),
 		BandwidthMetrics: prometheus.NewDesc(
 			"digitalocean_monitoring_bandwidth",
-			"Droplet's bandwidth metrics in kilobits per second",
+			"Droplet's bandwidth metrics in megabits per second",
 			append(labels, "interface", "direction"), nil,
 		),
 	}
@@ -262,7 +262,8 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			lastValue := metric.Values[len(metric.Values)-1].Value
 			device := fmt.Sprintf("%s", metric.Metric["device"])
 			fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
-			fsLabels := append(labels, device, fstype)
+			mountpoint := fmt.Sprintf("%s", metric.Metric["mountpoint"])
+			fsLabels := append(labels, device, fstype, mountpoint)
 			ch <- prometheus.MustNewConstMetric(
 				c.FileSystemFreeMetrics,
 				prometheus.GaugeValue,
@@ -284,7 +285,8 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			lastValue := metric.Values[len(metric.Values)-1].Value
 			device := fmt.Sprintf("%s", metric.Metric["device"])
 			fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
-			fsLabels := append(labels, device, fstype)
+			mountpoint := fmt.Sprintf("%s", metric.Metric["mountpoint"])
+			fsLabels := append(labels, device, fstype, mountpoint)
 			ch <- prometheus.MustNewConstMetric(
 				c.FileSystemSizeMetrics,
 				prometheus.GaugeValue,
@@ -404,7 +406,7 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				c.BandwidthMetrics,
 				prometheus.GaugeValue,
-				float64(lastValue*1000),
+				float64(lastValue),
 				bandwidthLabels...,
 			)
 		}
