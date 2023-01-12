@@ -319,7 +319,7 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				c.BandwidthMetrics,
 				prometheus.GaugeValue,
-				float64(lastValue*1000),
+				float64(lastValue),
 				bandwidthLabels...,
 			)
 		}
@@ -348,7 +348,7 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				c.BandwidthMetrics,
 				prometheus.GaugeValue,
-				float64(lastValue*1000),
+				float64(lastValue),
 				bandwidthLabels...,
 			)
 		}
@@ -377,7 +377,7 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			ch <- prometheus.MustNewConstMetric(
 				c.BandwidthMetrics,
 				prometheus.GaugeValue,
-				float64(lastValue*1000),
+				float64(lastValue),
 				bandwidthLabels...,
 			)
 		}
