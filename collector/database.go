@@ -82,6 +82,7 @@ func (c *DBCollector) Collect(ch chan<- prometheus.Metric) {
 				"msg", "can't list databases",
 				"err", err,
 			)
+			return
 		}
 
 		// append the current page's dbs to our list
