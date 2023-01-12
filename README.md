@@ -92,7 +92,7 @@ Read-only tokens are sufficient.
 | digitalocean_monitoring_memory_cached       | gauge   | 3            | Droplet's cached memory metrics in bytes
 | digitalocean_monitoring_filesystem_free     | gauge   | 5            | Droplet's filesystem free metrics in bytes
 | digitalocean_monitoring_filesystem_size     | gauge   | 5            | Droplet's filesystem size metrics in bytes
-| digitalocean_monitoring_bandwidth           | gauge   | 5            | Droplet's bandwidth metrics in kilobits per second
+| digitalocean_monitoring_bandwidth           | gauge   | 5            | Droplet's bandwidth metrics in megabits per second
 
 ### Alerts & Recording Rules
 
