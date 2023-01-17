@@ -3,6 +3,7 @@ package collector
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/digitalocean/godo"
@@ -139,6 +140,7 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 		opt.Page = page + 1
 	}
 
+	var wg sync.WaitGroup
 	for _, droplet := range droplets {
 		labels := []string{
 			fmt.Sprintf("%d", droplet.ID),
@@ -152,263 +154,308 @@ func (c *MonitoringCollector) Collect(ch chan<- prometheus.Metric) {
 			End:    time.Now(),
 		}
 
-		resp, _, err := c.client.Monitoring.GetDropletCPU(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet CPU metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletCPU(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet CPU metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			mode := fmt.Sprintf("%s", metric.Metric["mode"])
-			CPULabels := append(labels, mode)
-			ch <- prometheus.MustNewConstMetric(
-				c.CPUMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				CPULabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				mode := fmt.Sprintf("%s", metric.Metric["mode"])
+				CPULabels := append(labels, mode)
+				ch <- prometheus.MustNewConstMetric(
+					c.CPUMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					CPULabels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletTotalMemory(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet total memory metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletTotalMemory(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet total memory metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			ch <- prometheus.MustNewConstMetric(
-				c.MemoryTotalMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				labels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				ch <- prometheus.MustNewConstMetric(
+					c.MemoryTotalMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					labels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletAvailableMemory(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet available memory metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletAvailableMemory(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet available memory metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			ch <- prometheus.MustNewConstMetric(
-				c.MemoryAvailableMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				labels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				ch <- prometheus.MustNewConstMetric(
+					c.MemoryAvailableMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					labels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletFreeMemory(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet free memory metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletFreeMemory(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet free memory metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			ch <- prometheus.MustNewConstMetric(
-				c.MemoryFreeMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				labels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				ch <- prometheus.MustNewConstMetric(
+					c.MemoryFreeMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					labels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletCachedMemory(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet cached memory metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletCachedMemory(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet cached memory metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			ch <- prometheus.MustNewConstMetric(
-				c.MemoryCachedMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				labels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				ch <- prometheus.MustNewConstMetric(
+					c.MemoryCachedMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					labels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletFilesystemFree(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet filesystem free metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletFilesystemFree(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet filesystem free metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			device := fmt.Sprintf("%s", metric.Metric["device"])
-			fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
-			mountpoint := fmt.Sprintf("%s", metric.Metric["mountpoint"])
-			fsLabels := append(labels, device, fstype, mountpoint)
-			ch <- prometheus.MustNewConstMetric(
-				c.FileSystemFreeMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				fsLabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				device := fmt.Sprintf("%s", metric.Metric["device"])
+				fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
+				mountpoint := fmt.Sprintf("%s", metric.Metric["mountpoint"])
+				fsLabels := append(labels, device, fstype, mountpoint)
+				ch <- prometheus.MustNewConstMetric(
+					c.FileSystemFreeMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					fsLabels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletFilesystemSize(ctx, metricsReq)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet filesystem size metrics",
-				"err", err,
-			)
-		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletFilesystemSize(ctx, metricsReq)
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet filesystem size metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			device := fmt.Sprintf("%s", metric.Metric["device"])
-			fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
-			mountpoint := fmt.Sprintf("%s", metric.Metric["mountpoint"])
-			fsLabels := append(labels, device, fstype, mountpoint)
-			ch <- prometheus.MustNewConstMetric(
-				c.FileSystemSizeMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				fsLabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				device := fmt.Sprintf("%s", metric.Metric["device"])
+				fstype := fmt.Sprintf("%s", metric.Metric["fstype"])
+				mountpoint := fmt.Sprintf("%s", metric.Metric["mountpoint"])
+				fsLabels := append(labels, device, fstype, mountpoint)
+				ch <- prometheus.MustNewConstMetric(
+					c.FileSystemSizeMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					fsLabels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletBandwidth(
-			ctx,
-			&godo.DropletBandwidthMetricsRequest{
-				DropletMetricsRequest: *metricsReq,
-				Interface:             "public",
-				Direction:             "inbound",
-			},
-		)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet bandwidth public inbound metrics",
-				"err", err,
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletBandwidth(
+				ctx,
+				&godo.DropletBandwidthMetricsRequest{
+					DropletMetricsRequest: *metricsReq,
+					Interface:             "public",
+					Direction:             "inbound",
+				},
 			)
-		}
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet bandwidth public inbound metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
-			direction := fmt.Sprintf("%s", metric.Metric["direction"])
-			bandwidthLabels := append(labels, intrfc, direction)
-			ch <- prometheus.MustNewConstMetric(
-				c.BandwidthMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				bandwidthLabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
+				direction := fmt.Sprintf("%s", metric.Metric["direction"])
+				bandwidthLabels := append(labels, intrfc, direction)
+				ch <- prometheus.MustNewConstMetric(
+					c.BandwidthMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					bandwidthLabels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletBandwidth(
-			ctx,
-			&godo.DropletBandwidthMetricsRequest{
-				DropletMetricsRequest: *metricsReq,
-				Interface:             "public",
-				Direction:             "outbound",
-			},
-		)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet bandwidth public outbound metrics",
-				"err", err,
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletBandwidth(
+				ctx,
+				&godo.DropletBandwidthMetricsRequest{
+					DropletMetricsRequest: *metricsReq,
+					Interface:             "public",
+					Direction:             "outbound",
+				},
 			)
-		}
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet bandwidth public outbound metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
-			direction := fmt.Sprintf("%s", metric.Metric["direction"])
-			bandwidthLabels := append(labels, intrfc, direction)
-			ch <- prometheus.MustNewConstMetric(
-				c.BandwidthMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				bandwidthLabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
+				direction := fmt.Sprintf("%s", metric.Metric["direction"])
+				bandwidthLabels := append(labels, intrfc, direction)
+				ch <- prometheus.MustNewConstMetric(
+					c.BandwidthMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					bandwidthLabels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletBandwidth(
-			ctx,
-			&godo.DropletBandwidthMetricsRequest{
-				DropletMetricsRequest: *metricsReq,
-				Interface:             "private",
-				Direction:             "inbound",
-			},
-		)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet bandwidth private inbound metrics",
-				"err", err,
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletBandwidth(
+				ctx,
+				&godo.DropletBandwidthMetricsRequest{
+					DropletMetricsRequest: *metricsReq,
+					Interface:             "private",
+					Direction:             "inbound",
+				},
 			)
-		}
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet bandwidth private inbound metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
-			direction := fmt.Sprintf("%s", metric.Metric["direction"])
-			bandwidthLabels := append(labels, intrfc, direction)
-			ch <- prometheus.MustNewConstMetric(
-				c.BandwidthMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				bandwidthLabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
+				direction := fmt.Sprintf("%s", metric.Metric["direction"])
+				bandwidthLabels := append(labels, intrfc, direction)
+				ch <- prometheus.MustNewConstMetric(
+					c.BandwidthMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					bandwidthLabels...,
+				)
+			}
+		}()
 
-		resp, _, err = c.client.Monitoring.GetDropletBandwidth(
-			ctx,
-			&godo.DropletBandwidthMetricsRequest{
-				DropletMetricsRequest: *metricsReq,
-				Interface:             "private",
-				Direction:             "outbound",
-			},
-		)
-		if err != nil {
-			c.errors.WithLabelValues("droplet").Add(1)
-			level.Warn(c.logger).Log(
-				"msg", "can't read current droplet bandwidth private outbound metrics",
-				"err", err,
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			resp, _, err := c.client.Monitoring.GetDropletBandwidth(
+				ctx,
+				&godo.DropletBandwidthMetricsRequest{
+					DropletMetricsRequest: *metricsReq,
+					Interface:             "private",
+					Direction:             "outbound",
+				},
 			)
-		}
+			if err != nil {
+				c.errors.WithLabelValues("droplet").Add(1)
+				level.Warn(c.logger).Log(
+					"msg", "can't read current droplet bandwidth private outbound metrics",
+					"err", err,
+				)
+			}
 
-		for _, metric := range resp.Data.Result {
-			lastValue := metric.Values[len(metric.Values)-1].Value
-			intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
-			direction := fmt.Sprintf("%s", metric.Metric["direction"])
-			bandwidthLabels := append(labels, intrfc, direction)
-			ch <- prometheus.MustNewConstMetric(
-				c.BandwidthMetrics,
-				prometheus.GaugeValue,
-				float64(lastValue),
-				bandwidthLabels...,
-			)
-		}
+			for _, metric := range resp.Data.Result {
+				lastValue := metric.Values[len(metric.Values)-1].Value
+				intrfc := fmt.Sprintf("%s", metric.Metric["interface"])
+				direction := fmt.Sprintf("%s", metric.Metric["direction"])
+				bandwidthLabels := append(labels, intrfc, direction)
+				ch <- prometheus.MustNewConstMetric(
+					c.BandwidthMetrics,
+					prometheus.GaugeValue,
+					float64(lastValue),
+					bandwidthLabels...,
+				)
+			}
+		}()
 	}
+	wg.Wait()
 }
