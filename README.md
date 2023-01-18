@@ -85,6 +85,14 @@ Read-only tokens are sufficient.
 | digitalocean_spaces_bucket_created          | gauge   | 2            | Spaces bucket creation timestamp in unix epoch format. Includes name and region labels
 | digitalocean_start_time                     | gauge   | 1            | Unix timestamp of the start time
 | digitalocean_volume_size_bytes              | gauge   | 11           | Volume's size in bytes
+| digitalocean_monitoring_cpu                 | gauge   | 4            | Droplet's CPU metrics in seconds
+| digitalocean_monitoring_memory_total        | gauge   | 3            | Droplet's total memory metrics in bytes
+| digitalocean_monitoring_memory_free         | gauge   | 3            | Droplet's free memory metrics in bytes
+| digitalocean_monitoring_memory_available    | gauge   | 3            | Droplet's available memory metrics in bytes
+| digitalocean_monitoring_memory_cached       | gauge   | 3            | Droplet's cached memory metrics in bytes
+| digitalocean_monitoring_filesystem_free     | gauge   | 5            | Droplet's filesystem free metrics in bytes
+| digitalocean_monitoring_filesystem_size     | gauge   | 5            | Droplet's filesystem size metrics in bytes
+| digitalocean_monitoring_bandwidth           | gauge   | 5            | Droplet's bandwidth metrics in megabits per second
 
 ### Alerts & Recording Rules
 
