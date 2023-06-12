@@ -1,0 +1,28 @@
+name: test
+on: [push]
+jobs:
+  go-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+      - run: go version
+      - run: go mod download
+      - run: go build ./cmd/push-metrics
+  go-vet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+      - run: go version
+      - run: go mod download
+      - run: go vet ./cmd/push-metrics
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          args: --timeout 300s
