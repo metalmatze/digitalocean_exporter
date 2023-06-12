@@ -8,7 +8,7 @@ jobs:
       - uses: actions/setup-go@v2
       - run: go version
       - run: go mod download
-      - run: go build ./cmd/push-metrics
+      - run: go build ./
   go-vet:
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-go@v2
       - run: go version
       - run: go mod download
-      - run: go vet ./cmd/push-metrics
+      - run: go vet ./
   golangci:
     name: lint
     runs-on: ubuntu-latest
